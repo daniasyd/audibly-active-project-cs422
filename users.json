@@ -1,0 +1,10 @@
+[
+  {
+    "username": "testing1@gmail.com",
+    "passwordHash": "$2a$10$so5hURBnW7CmGQozXh1oTe5bHx.9Rgld6UqtVTbS4Rj6F/8zi1mDu"
+  },
+  {
+    "username": "a",
+    "passwordHash": "$2a$10$.MH6hrU3UsTP5NqXT2XmiOkaUL9kgh0uzl2IWUT467.gRIGh/VuAu"
+  }
+]

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Quiz — Study</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="page-home">
+
+    <!-- One-time tap gate to unlock audio/mic on mobile -->
+    <div id="audioGate" class="audio-gate" aria-hidden="false" role="dialog">
+        <div class="audio-gate-box">
+            <h2 class="audio-gate-title">Enable Audio</h2>
+            <p class="audio-gate-text">Tap once to allow the app to speak and use the microphone.</p>
+            <button id="audioGateBtn" class="modal-btn green-btn" type="button">Tap to Continue</button>
+        </div>
+    </div>
+
+
+  <!-- Top row: Back (left) + Timer (right) -->
+  <header class="study-header">
+    <button id="studyBackBtn" class="study-back-btn blue-btn" type="button">Back</button>
+    <div id="studyTimer" class="study-timer">00:00</div>
+  </header>
+
+  <main class="study-main">
+  <!-- Set title styled like your button -->
+  <div id="studySetTitle" class="study-setbox">Loading set…</div>
+
+  <!-- QUESTION SCREEN (only question UI lives here) -->
+  <section id="screenQuestion" class="screen visible">
+    <section class="study-listen">
+      <img src="assets/headphones.png" alt="Headphones" class="study-headphones-img" />
+      <h2 class="study-subtitle">Listen to the question</h2>
+    </section>
+
+    <div class="study-waveform">
+      <img src="assets/waveform.gif" alt="Audio playing" class="waveform" />
+    </div>
+  </section>
+
+    <!-- ANSWER SCREEN (starts hidden) -->
+    <section id="screenAnswer" class="screen hidden">
+    <section class="study-listen">
+        <img src="assets/microphone.png" alt="Microphone" class="study-microphone-img" />
+        <h2 class="study-subtitle">Respond with answer</h2>
+
+        <!-- User answer area -->
+        <div class="user-answer-box">
+        <p class="user-answer-label">User Answer:</p>
+        <p id="userAnswerText" class="user-answer-text">...</p>
+        </div>
+    </section>
+
+    <!-- Skip button -->
+    <div class="answer-btn-container">
+        <button id="skipBtn" class="green-btn answer-skip-btn" type="button">Skip</button>
+    </div>
+    </section>
+
+    <!-- REVIEW SCREEN (starts hidden) -->
+    <section id="screenReview" class="screen hidden">
+    <div class="review-block">
+        <p class="review-label">User Answer:</p>
+        <p id="reviewUserText" class="review-text">...</p>
+    </div>
+
+    <div class="review-block">
+        <p class="review-label">Correct Answer:</p>
+        <p id="reviewCorrectText" class="review-text">...</p>
+    </div>
+
+    <div class="review-actions">
+        <button id="countCorrectBtn" class="review-count-btn" type="button">Count as correct?</button>
+    </div>
+
+    <!-- Outcome message (hidden until user answers) -->
+    <p id="reviewOutcome" class="review-outcome hidden"></p>
+    </section>
+
+
+    
+
+    <!-- SUMMARY SCREEN (starts hidden) -->
+
+    <section id="screenSummary" class="screen hidden">
+    <!-- Time at top center -->
+    <h2 id="sumTime" class="summary-title">Time: 00:00</h2>
+
+    <!-- "You got:" -->
+    <p class="summary-yougot">You got:</p>
+
+    <!-- Green bold "X out of Y" + black "Recalled!" -->
+    <div class="summary-block">
+      <p id="sumRight" class="summary-number summary-number-green">0 out of 0</p>
+      <p class="summary-caption">Recalled!</p>
+    </div>
+
+    <!-- Red bold "X out of Y" + black "missed." -->
+    <div class="summary-block">
+      <p id="sumWrong" class="summary-number summary-number-red">0 out of 0</p>
+      <p class="summary-caption">missed.</p>
+    </div>
+
+    <!-- Buttons -->
+    <div class="summary-buttons">
+      <button id="summaryTryBtn"  class="modal-btn pink-btn"  type="button">Try again</button>
+      <button id="summaryHomeBtn" class="modal-btn green-btn" type="button">Back to home</button>
+    </div>
+  </section>
+
+
+
+
+</main>
+
+
+  <script>lucide.createIcons();</script>
+  <script src="study.js" defer></script>
+</body>
+</html>

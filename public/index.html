@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Quiz — Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="card">
+    <h1>Audibly Active</h1>
+    <p class="muted">Sign in or create an account</p>
+
+    <div class="tabs">
+      <button class="tab-button active" data-tab="login">Log In</button>
+      <button class="tab-button" data-tab="signup">Sign Up</button>
+    </div>
+
+    <section id="login" class="tab-panel active">
+      <form id="loginForm" class="stack">
+        <label>
+          Username
+          <input id="loginUsername" type="text" autocomplete="username" required />
+        </label>
+        <label>
+          Password
+          <input id="loginPassword" type="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit">Log In</button>
+        <p id="loginStatus" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="signup" class="tab-panel">
+      <form id="signupForm" class="stack">
+        <label>
+          Username
+          <input id="signupUsername" type="text" autocomplete="username" required />
+        </label>
+        <label>
+          Password
+          <input id="signupPassword" type="password" autocomplete="new-password" required />
+        </label>
+        <button type="submit">Create Account</button>
+        <p id="signupStatus" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Sets</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="page-home">
+  <!-- Keep your existing black header + icons -->
+  <header class="top-bar">
+    <nav class="icon-bar">
+      <a class="icon-button" href="stats.html" aria-label="Stats">
+        <i data-lucide="bar-chart-2" class="icon"></i>
+      </a>
+      <a class="icon-button active" href="sets.html" aria-label="Sets">
+        <i data-lucide="file-text" class="icon"></i>
+      </a>
+      <a class="icon-button" href="home.html" aria-label="Home">
+        <i data-lucide="home" class="icon"></i>
+      </a>
+    </nav>
+  </header>
+
+  
+  <main class="sets-main">
+    <!-- Recent section -->
+    <h2 class="sets-title">Recent</h2>
+    <button id="recentSetBtn" class="set-btn" disabled>Loading…</button>
+
+    <!-- All sets section -->
+    <h3 class="sets-subtitle">All Sets:</h3>
+    <div id="allSets" class="sets-list">
+      <!-- buttons will be injected here -->
+      <p id="allSetsEmpty" class="empty-text">Loading…</p>
+    </div>
+    <!-- Sticky bottom row so content never sits underneath -->
+    <div class="fab-row" aria-hidden="false">
+      <button id="addSetBtn" class="fab-btn" aria-label="Create New Set">
+        <i data-lucide="plus" class="fab-plus-icon"></i>
+      </button>
+    </div>
+
+  </main>
+
+    <!-- Study Mode Modal -->
+  <div id="modeOverlay" class="mode-overlay hidden" aria-hidden="true">
+    <div class="mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
+      <h2 id="modeTitle" class="mode-title">Start Studying</h2>
+
+      <div class="mode-buttons">
+        <button id="modeNormalBtn" class="modal-btn yellow-btn" type="button">Normal</button>
+        <button id="modePomodoroBtn" class="modal-btn green-btn" type="button">Pomodoro</button>
+        <button id="modeBackBtn" class="modal-btn blue-btn" type="button">Back</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="sets.js" defer></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

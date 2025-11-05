@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Audibly Active — Create New Set</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="page-home">
+  <!-- Black header bar -->
+  <header class="top-bar">
+    <nav class="icon-bar">
+      <a class="icon-button" href="stats.html" aria-label="Stats">
+        <i data-lucide="bar-chart-2" class="icon"></i>
+      </a>
+      <a class="icon-button active" href="create.html" aria-label="Create Set">
+        <i data-lucide="file-plus" class="icon"></i>
+      </a>
+      <a class="icon-button" href="home.html" aria-label="Home">
+        <i data-lucide="home" class="icon"></i>
+      </a>
+    </nav>
+  </header>
+
+  <!-- Main content -->
+  <main class="create-main">
+    <h1 class="create-title">Create New Set</h1>
+
+    <div class="set-name-row">
+        <label for="setName" class="set-name-label">Name set:</label>
+        <input
+        type="text"
+        id="setName"
+        name="setName"
+        placeholder="Enter set name..."
+        class="set-name-input"
+        />
+    </div>
+
+    <!-- Question/Answer section -->
+    <div class="qa-section">
+        <div class="qa-labels">
+        <span class="qa-label">Question:</span>
+        <span class="qa-label">Answer:</span>
+        </div>
+
+    <!-- Container that will hold all QA rows -->
+    <div class="qa-list" id="qaList">
+        <!-- Initial row -->
+        <div class="qa-row">
+            <input
+            type="text"
+            name="questions[]"
+            class="qa-input"
+            placeholder="Enter question..."
+            />
+            <span class="qa-colon">:</span>
+            <input
+            type="text"
+            name="answers[]"
+            class="qa-input"
+            placeholder="Enter answer..."
+            />
+            <button class="delete-btn" title="Delete card">
+            <i data-lucide="trash-2" class="trash-icon"></i>
+            </button>
+        </div>
+        </div>
+
+        <!-- Hidden template for cloning -->
+        <template id="qaTemplate">
+            <div class="qa-row">
+                <input
+                type="text"
+                name="questions[]"
+                class="qa-input"
+                placeholder="Enter question..."
+                />
+                <span class="qa-colon">:</span>
+                <input
+                type="text"
+                name="answers[]"
+                class="qa-input"
+                placeholder="Enter answer..."
+                />
+                <button class="delete-btn" title="Delete card">
+                <i data-lucide="trash-2" class="trash-icon"></i>
+                </button>
+            </div>
+        </template>
+
+    </div>
+
+  <div class="create-buttons">
+    <button class="finish-btn">Finish</button>
+    <button class="add-btn" id="addCardBtn">Add Card</button>
+  </div>
+
+  <script src="create.js" defer></script>
+  <script>lucide.createIcons();</script>
+  
+</main>
+
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Set Finished</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="page-home">
+  <main class="finish-main">
+    <!-- Success icon + text -->
+    <div class="finish-header">
+  <svg viewBox="0 0 400 280" class="finish-svg">
+    <defs>
+      <!-- Wider, lower arc: start at x=40 end at x=360 with a larger radius -->
+      <path id="text-curve" d="M40,190 A180,180 0 0,1 360,190" />
+    </defs>
+    <text text-anchor="middle" fill="#28a745" font-weight="800" font-size="32" dy="6">
+      <textPath href="#text-curve" startOffset="50%">You Finished A Set!</textPath>
+    </text>
+  </svg>
+
+  <img src="assets/thumbs-up.png" alt="Thumbs up" class="finish-img" />
+</div>
+
+
+    <!-- Subtitle -->
+    <p class="finish-subtext" id="finishSubtext">
+      Set <strong>Untitled</strong> is now finished. Wanna try it out?
+    </p>
+
+    <!-- Buttons -->
+    <div class="finish-buttons">
+      <a href="sets.html" class="finish-btn blue-btn">Start Learning</a>
+      <a href="home.html" class="finish-btn green-btn">Back</a>
+    </div>
+  </main>
+
+  <script src="finishSet.js" defer></script>
+</body>
+</html>

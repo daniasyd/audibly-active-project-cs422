@@ -1,0 +1,19 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build output
+dist/
+build/
+.next/
+.cache/
+
+# Environment files
+.env
+.env.local
+
+# OS and editor junk
+.DS_Store
+Thumbs.db
+.vscode/

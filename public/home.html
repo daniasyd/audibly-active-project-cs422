@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Quiz — Home</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="page-home">
+  <header class="top-bar">
+    <nav class="icon-bar">
+      <a class="icon-button" href="stats.html" aria-label="Stats">
+        <i data-lucide="bar-chart-2" class="icon"></i>
+      </a>
+      <a class="icon-button" href="sets.html" aria-label="Study Sets">
+        <i data-lucide="file-text" class="icon"></i>
+      </a>
+      <a class="icon-button active" href="home.html" aria-label="Home">
+        <i data-lucide="home" class="icon"></i>
+      </a>
+    </nav>
+  </header>
+
+  <main class="home-main">
+    <h1 class="app-title">Audibly Active</h1>
+
+    <!-- Audio waveform image -->
+    <div class="waveform-container">
+      <img
+        src="assets/waveform.gif"
+        alt="Audio waveform animation"
+        class="waveform"
+      />
+    </div>
+
+    <!-- Button area -->
+    <div class="button-area">
+      <p class="recent-label">Recent:</p>
+      <a id="recentBtn" class="main-btn recent-btn" href="#"></a>
+
+      <a href="create.html" class="main-btn create-btn">Create New Set</a>
+      <a href="sets.html" class="main-btn study-btn">Start Study Session</a>
+      <a href="stats.html" class="main-btn progress-btn">View Progress</a>
+    </div>
+
+      <!-- Study Mode Modal (same structure as sets.html) -->
+  <div id="modeOverlay" class="mode-overlay hidden" aria-hidden="true">
+    <div class="mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
+      <h2 id="modeTitle" class="mode-title">Start Studying</h2>
+      <div class="mode-buttons">
+        <button id="modeNormalBtn" class="modal-btn yellow-btn" type="button">Normal</button>
+        <button id="modePomodoroBtn" class="modal-btn green-btn" type="button">Pomodoro</button>
+        <button id="modeBackBtn" class="modal-btn blue-btn" type="button">Back</button>
+      </div>
+    </div>
+  </div>
+
+  </main> 
+
+  <script src="home.js" defer></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
