@@ -1263,3 +1263,71 @@ button, .primary {
   color: #000;
 }
 .pink-btn:hover { opacity: 0.92; }
+
+
+/* Pomodoro mini-form */
+.pomodoro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pomodoro-label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  color: #000;
+  font-size: clamp(14px, 3.2vw, 16px);
+}
+
+.pomodoro-input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: #000;
+  font-size: 1rem;
+}
+
+/* === BREAK SCREEN EXTRAS === */
+.break-timer-text {
+  text-align: center;
+  font-weight: 900;
+  color: #000;
+  font-size: clamp(28px, 9vw, 40px);
+  margin: 0;
+}
+
+.break-relax {
+  text-align: center;
+  font-weight: 800;
+  color: #000;
+  font-size: clamp(18px, 4.5vw, 24px);
+  margin: 6px 0 0;
+}
+
+.break-yougot {
+  text-align: center;
+  font-weight: 700;
+  color: #000;
+  font-size: clamp(16px, 4vw, 20px);
+  margin: 6px 0 2px;
+}
+
+.break-number-green {
+  text-align: center;
+  font-weight: 900;
+  color: #2f8f46; /* same green tone you use elsewhere */
+  font-size: clamp(20px, 6vw, 28px);
+  margin: 0;
+}
+
+.break-caption {
+  text-align: center;
+  color: #000;
+  font-weight: 600;
+  font-size: clamp(14px, 3.8vw, 18px);
+  margin: 2px 0 0;
+}
+

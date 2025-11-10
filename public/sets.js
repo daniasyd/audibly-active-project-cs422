@@ -25,6 +25,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     const modePomodoroBtn = document.getElementById("modePomodoroBtn");
     const modeBackBtn = document.getElementById("modeBackBtn");
 
+    // Extra Pomodoro form elements
+    const pomodoroForm     = document.getElementById("pomodoroForm");
+    const workMinutesInput = document.getElementById("workMinutes");
+    const restMinutesInput = document.getElementById("restMinutes");
+    const pomodoroStartBtn = document.getElementById("pomodoroStartBtn");
+    const pomodoroBackBtn  = document.getElementById("pomodoroBackBtn");
+
+    // The original 3 buttons container (so we can hide/show it)
+    // If your three buttons are the only children inside .mode-modal,
+    // just grab the container that wraps them. Here we target by IDs:
+    const modeButtonsRow = document.querySelector(".mode-buttons");
+
+
     function openModeModal(setObj) {
     selectedSet = setObj || null;
     if (!modeOverlay) return;
@@ -57,10 +70,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!selectedSet) return;
     window.location.href = `study.html?id=${encodeURIComponent(selectedSet.id || selectedSet._id)}&mode=normal`;
     });
-    modePomodoroBtn.addEventListener("click", () => {
-    if (!selectedSet) return;
-    window.location.href = `study.html?id=${encodeURIComponent(selectedSet.id || selectedSet._id)}&mode=pomodoro`;
+    
+    modePomodoroBtn?.addEventListener("click", () => {
+      // Hide the 3-choice row; show the form
+      modeButtonsRow?.classList.add("hidden");
+      pomodoroForm?.classList.remove("hidden");
     });
+
+    pomodoroStartBtn?.addEventListener("click", () => {
+      if (!selectedSet) return;
+      const id = encodeURIComponent(selectedSet.id || selectedSet._id);
+
+      // read + validate times
+      const work = Math.max(1, Math.min(180, parseInt(workMinutesInput?.value || "25", 10) || 25));
+      const rest = Math.max(1, Math.min(120, parseInt(restMinutesInput?.value || "5", 10) || 5));
+
+      window.location.href = `study.html?id=${id}&mode=pomodoro&work=${work}&rest=${rest}`;
+    });
+
+    pomodoroBackBtn?.addEventListener("click", () => {
+      // Show the 3-choice row; hide the form
+      pomodoroForm?.classList.add("hidden");
+      modeButtonsRow?.classList.remove("hidden");
+    });
+
     if (modeBackBtn) {
     modeBackBtn.addEventListener("click", () => closeModeModal());
     }

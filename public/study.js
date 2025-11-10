@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- DOM refs
   const backBtn           = document.getElementById("studyBackBtn");
   const timerEl           = document.getElementById("studyTimer");
+  
   const titleEl           = document.getElementById("studySetTitle");
 
   const screenQuestion    = document.getElementById("screenQuestion");
@@ -19,9 +20,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const countCorrectBtn   = document.getElementById("countCorrectBtn");
   const reviewOutcome     = document.getElementById("reviewOutcome");
 
-  // const sumCorrect        = document.getElementById("sumCorrect");
-  // const sumIncorrect      = document.getElementById("sumIncorrect");
-  // const summaryDoneBtn    = document.getElementById("summaryDoneBtn");
+  const screenBreak   = document.getElementById("screenBreak");
+  const breakTimerEl  = document.getElementById("breakTimer");
+  const breakRightEl  = document.getElementById("breakRight");
+  const breakHomeBtn  = document.getElementById("breakHomeBtn");
 
   const skipBtn           = document.getElementById("skipBtn");
 
@@ -37,6 +39,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const setId  = params.get("id");
   const mode   = (params.get("mode") || "normal").toLowerCase();
 
+  const workMins = Math.max(1, parseInt(params.get("work") || "25", 10));
+  const restMins = Math.max(1, parseInt(params.get("rest") || "5", 10));
+  const isPomodoro = mode === "pomodoro";
+
+
   // --- iOS detection
   const isIOS = /iP(hone|od|ad)/.test(navigator.platform) ||
                 (navigator.userAgent.includes("Mac") && "ontouchend" in document);
@@ -44,6 +51,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- Timer (elapsed up-counter)
   let startTime = Date.now();
   let timerHandle = null;
+  let workTimeout = null;   // add beside timerHandle/startTime
+
   const fmt = (s) => {
     const m = Math.floor(s / 60);
     const r = s % 60;
@@ -56,6 +65,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const secs = Math.floor((Date.now() - startTime) / 1000);
       if (timerEl) timerEl.textContent = fmt(secs);
     }, 1000);
+    if (isPomodoro) {
+      if (workTimeout) clearTimeout(workTimeout);
+      workTimeout = setTimeout(() => {
+        // Trigger break using the selected rest length (in seconds)
+        startBreakCountdown(restMins * 60);
+      }, workMins * 60 * 1000);
+    }
+
   };
 
   // --- Back
@@ -69,25 +86,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     screenAnswer?.classList.add("hidden");
     screenReview?.classList.add("hidden");
     screenSummary?.classList.add("hidden");
+    screenBreak?.classList?.add("hidden");
+    showTopChrome();     // <—
   }
+
   function showAnswer() {
     screenQuestion?.classList.add("hidden");
     screenAnswer?.classList.remove("hidden");
     screenReview?.classList.add("hidden");
     screenSummary?.classList.add("hidden");
+    screenBreak?.classList?.add("hidden");
+    showTopChrome();     // <—
   }
+
   function showReview() {
     screenQuestion?.classList.add("hidden");
     screenAnswer?.classList.add("hidden");
     screenReview?.classList.remove("hidden");
     screenSummary?.classList.add("hidden");
+    screenBreak?.classList?.add("hidden");
+    showTopChrome();     // <—
   }
+
   function showSummary() {
     screenQuestion?.classList.add("hidden");
     screenAnswer?.classList.add("hidden");
     screenReview?.classList.add("hidden");
     screenSummary?.classList.remove("hidden");
+    screenBreak?.classList?.add("hidden");
+    hideTopChrome();     // <—
   }
+
+  function showBreak() {
+    screenQuestion?.classList.add("hidden");
+    screenAnswer?.classList.add("hidden");
+    screenReview?.classList.add("hidden");
+    screenSummary?.classList.add("hidden");
+    screenBreak?.classList.remove("hidden");
+    hideTopChrome();     // <—
+  }
+
+  function setBreakTimer(secs) {
+    if (breakTimerEl) breakTimerEl.textContent = fmt(Math.max(0, secs));
+  }
+
 
   // --- UI resets so previous state doesn't leak
   function resetAnswerUI() {
@@ -102,6 +144,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       reviewOutcome.classList.add("hidden");
       reviewOutcome.classList.remove("outcome-good", "outcome-bad");
     }
+  }
+
+  // Header controls
+  const headerBack  = document.getElementById("studyBackBtn");
+  const headerTimer = document.getElementById("studyTimer");
+
+  function hideTopChrome() {
+    headerBack?.classList.add("hidden");
+    headerTimer?.classList.add("hidden");
+  }
+
+  function showTopChrome() {
+    headerBack?.classList.remove("hidden");
+    headerTimer?.classList.remove("hidden");
   }
 
   // --- Ding (simple per-call context)
@@ -124,6 +180,33 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.warn("ding failed:", e);
     }
   }
+
+  async function playRing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const g = ctx.createGain();
+    g.gain.value = 0.001;
+    g.connect(ctx.destination);
+
+    // 3 short beeps: A5, C6, E6
+    const notes = [880, 1046.5, 1318.5];
+    let t = ctx.currentTime;
+    notes.forEach((f) => {
+      const o = ctx.createOscillator();
+      o.type = "sine";
+      o.frequency.setValueAtTime(f, t);
+      o.connect(g);
+      g.gain.exponentialRampToValueAtTime(0.3, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+      o.start(t);
+      o.stop(t + 0.3);
+      t += 0.35;
+    });
+  } catch (e) {
+    console.warn("ring failed:", e);
+  }
+}
+
 
   // --- TTS helpers (reverted to the working pattern for your setup)
   function speakQuestionAndWait(questionText, opts = { lang: "en-US", rate: 1.0, pitch: 1.0 }) {
@@ -232,6 +315,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch { /* ignore */ }
   }
 
+  let breakInterval = null;
+  let isOnBreak = false;
+  async function startBreakCountdown(totalSecs) {
+    // mark state to avoid Review being shown mid-transition
+    isOnBreak = true;
+
+    // stop any active listening or speech ASAP
+    stopAnswerRecognition();
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch {}
+
+    // populate "X out of Y" using stable session totals
+    if (breakRightEl) breakRightEl.textContent = `${correctCount} out of ${sessionTotal}`;
+
+    // show the Break screen and initialize countdown display
+    showBreak();
+    setBreakTimer(totalSecs);
+
+    // ring once upon entering break
+    await playRing();
+
+    // ensure any previous countdown is cleared
+    if (breakInterval) { clearInterval(breakInterval); breakInterval = null; }
+
+    let secs = totalSecs;
+    breakInterval = setInterval(async () => {
+      secs -= 1;
+      setBreakTimer(secs);
+
+      if (secs <= 0) {
+        clearInterval(breakInterval);
+        breakInterval = null;
+
+        // ring at break end
+        await playRing();
+
+        // stay on the Break screen; user can tap "Back to Home"
+        // If you later want to auto-resume study:
+        // isOnBreak = false;
+        // await runQuestionFlow();
+      }
+    }, 1000);
+  }
+
+
+
+
   
 
   // --- Speech Recognition (Web Speech API; iOS Safari does not support this, Chrome on iOS uses WebKit)
@@ -314,11 +443,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     rec.onend = () => {
       recognizing = false;
       if (silenceTimer) { clearInterval(silenceTimer); silenceTimer = null; }
-
-      // When recognition ends, move to review for current card
+      if (isOnBreak) return;  // ⬅️ don’t go to review during break
       const userText = (userAnswerText?.textContent || "").trim();
       proceedToReviewFlow({ userText, correctText: currentCorrectAnswer });
     };
+
 
     return rec;
   }
@@ -402,6 +531,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentCorrectAnswer = "";
   let correctCount = 0;
   let incorrectCount = 0;
+  let sessionTotal = 0;
 
   function loadCurrentCard() {
     const c = cards[currentIdx] || {};
@@ -472,6 +602,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function proceedToReviewFlow({ userText, correctText }) {
+    if (isOnBreak) return; // bail if break just started
     reviewUserText.textContent = userText && userText !== "..." ? userText : "(no answer)";
     reviewCorrectText.textContent = correctText || "(no correct answer)";
     showReview();
@@ -483,6 +614,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await playDing();
 
     const ans = await listenForYesNo({ windowMs: 5000, reprompt: true });
+    if (isOnBreak) return;  // break started while we were waiting
     if (ans === "yes") {
       await setReviewOutcome(true);
     } else if (ans === "no") {
@@ -499,9 +631,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   countCorrectBtn?.addEventListener("click", async () => {
-    // Manual fallback: count as correct
+    if (isOnBreak) return;  // ⬅️ ignore taps during break
     await setReviewOutcome(true);
   });
+
 
   // summaryDoneBtn?.addEventListener("click", () => {
   //   window.location.href = "sets.html"; // or "home.html"
@@ -517,6 +650,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   summaryHomeBtn?.addEventListener("click", () => {
+    window.location.href = "home.html";
+  });
+
+  breakHomeBtn?.addEventListener("click", () => {
     window.location.href = "home.html";
   });
 
@@ -548,6 +685,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     cards = Array.isArray(set.cards) ? set.cards : [];
+    sessionTotal = cards.length;   // <= capture total once, never 0 later
     if (!cards.length) {
       titleEl.textContent = `${set.name || "Untitled"} | 0 cards`;
       return;
@@ -600,7 +738,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- Cleanup on unload
   window.addEventListener("beforeunload", () => {
     if (timerHandle) clearInterval(timerHandle);
+    if (workTimeout) clearTimeout(workTimeout);
+    if (breakInterval) clearInterval(breakInterval);
     if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch {} }
     stopAnswerRecognition();
   });
+
 });
