@@ -1331,3 +1331,14 @@ button, .primary {
   margin: 2px 0 0;
 }
 
+/* === RESULT SCREEN === */
+.result-title {
+  text-align: center;
+  font-weight: 900;
+  font-size: clamp(24px, 7vw, 34px);
+  margin: 20px 0 0;
+}
+.result-good { color: #2f8f46; }  /* green */
+.result-bad  { color: #cc2b2b; }  /* red   */
+
+

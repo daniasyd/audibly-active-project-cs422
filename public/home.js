@@ -2,25 +2,39 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const recentBtn = document.getElementById("recentBtn");
 
-  // Modal elements (same IDs/classes as sets.html so CSS/styles.js match)
+  // Modal elements (same IDs/classes as sets.html so CSS matches)
   const modeOverlay     = document.getElementById("modeOverlay");
   const modeNormalBtn   = document.getElementById("modeNormalBtn");
   const modePomodoroBtn = document.getElementById("modePomodoroBtn");
   const modeBackBtn     = document.getElementById("modeBackBtn");
+
+  // NEW: Pomodoro mini-form pieces
+  const pomodoroForm     = document.getElementById("pomodoroForm");
+  const pomodoroStartBtn = document.getElementById("pomodoroStartBtn");
+  const pomodoroBackBtn  = document.getElementById("pomodoroBackBtn");
+  const workMinutesInput = document.getElementById("workMinutes");
+  const restMinutesInput = document.getElementById("restMinutes");
+
+  // The first row of buttons inside the modal (Normal / Pomodoro / Back)
+  const modeButtonsRow = modeOverlay?.querySelector(".mode-buttons");
 
   let latestSet = null;
 
   function openModeModal(setObj) {
     latestSet = setObj || null;
     if (!modeOverlay) return;
+    // ensure we start at the choice row, not the form
+    pomodoroForm?.classList.add("hidden");
+    modeButtonsRow?.classList.remove("hidden");
+
     modeOverlay.classList.remove("hidden");
     modeOverlay.setAttribute("aria-hidden", "false");
   }
+
   function closeModeModal() {
     if (!modeOverlay) return;
     modeOverlay.classList.add("hidden");
     modeOverlay.setAttribute("aria-hidden", "true");
-    // keep latestSet cached; we only reset if you’d like
   }
 
   // Dismiss on overlay click (but not clicking inside the modal)
@@ -42,11 +56,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     const id = encodeURIComponent(latestSet.id || latestSet._id);
     window.location.href = `study.html?id=${id}&mode=normal`;
   });
+
+  // CHANGED: Pomodoro now shows the mini form instead of navigating immediately
   modePomodoroBtn?.addEventListener("click", () => {
     if (!latestSet) return;
-    const id = encodeURIComponent(latestSet.id || latestSet._id);
-    window.location.href = `study.html?id=${id}&mode=pomodoro`;
+    modeButtonsRow?.classList.add("hidden");
+    pomodoroForm?.classList.remove("hidden");
   });
+
+  // NEW: Back from the pomodoro form to the three-button row
+  pomodoroBackBtn?.addEventListener("click", () => {
+    pomodoroForm?.classList.add("hidden");
+    modeButtonsRow?.classList.remove("hidden");
+  });
+
+  // NEW: Start pomodoro with work/rest params
+  pomodoroStartBtn?.addEventListener("click", () => {
+    if (!latestSet) return;
+    const id   = encodeURIComponent(latestSet.id || latestSet._id);
+    const work = Math.max(1, Math.min(180, parseInt(workMinutesInput?.value || "25", 10) || 25));
+    const rest = Math.max(1, Math.min(120, parseInt(restMinutesInput?.value || "5", 10) || 5));
+    window.location.href = `study.html?id=${id}&mode=pomodoro&work=${work}&rest=${rest}`;
+  });
+
   modeBackBtn?.addEventListener("click", () => closeModeModal());
 
   // Default state

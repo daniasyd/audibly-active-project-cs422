@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="page-home">
+  <!-- Top nav: Home (left), Sets (middle), Stats (right) -->
   <header class="top-bar">
     <nav class="icon-bar">
       <a class="icon-button active" href="home.html" aria-label="Home">
@@ -25,7 +26,7 @@
   <main class="home-main">
     <h1 class="app-title">Audibly Active</h1>
 
-    <!-- Audio waveform image -->
+    <!-- Waveform -->
     <div class="waveform-container">
       <img
         src="assets/waveform.gif"
@@ -34,7 +35,7 @@
       />
     </div>
 
-    <!-- Button area -->
+    <!-- Buttons -->
     <div class="button-area">
       <p class="recent-label">Recent:</p>
       <a id="recentBtn" class="main-btn recent-btn" href="#"></a>
@@ -43,20 +44,42 @@
       <a href="sets.html" class="main-btn study-btn">Start Study Session</a>
       <a href="stats.html" class="main-btn progress-btn">View Progress</a>
     </div>
+  </main>
 
-      <!-- Study Mode Modal (same structure as sets.html) -->
+  <!-- === Mode chooser modal (same IDs/classes as sets page) === -->
   <div id="modeOverlay" class="mode-overlay hidden" aria-hidden="true">
     <div class="mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
       <h2 id="modeTitle" class="mode-title">Start Studying</h2>
+
+      <!-- Row with Normal / Pomodoro / Back -->
       <div class="mode-buttons">
         <button id="modeNormalBtn" class="modal-btn yellow-btn" type="button">Normal</button>
         <button id="modePomodoroBtn" class="modal-btn green-btn" type="button">Pomodoro</button>
         <button id="modeBackBtn" class="modal-btn blue-btn" type="button">Back</button>
       </div>
+
+      <!-- Pomodoro mini-form (hidden by default) -->
+      <div id="pomodoroForm" class="hidden">
+        <div class="mode-title" style="margin-top:10px">Pomodoro Settings</div>
+
+        <div class="pomodoro-grid">
+          <label class="pomodoro-label">
+            Study (minutes)
+            <input id="workMinutes" class="pomodoro-input" type="number" min="1" max="180" step="1" value="25">
+          </label>
+          <label class="pomodoro-label">
+            Rest (minutes)
+            <input id="restMinutes" class="pomodoro-input" type="number" min="1" max="120" step="1" value="5">
+          </label>
+        </div>
+
+        <div class="mode-buttons" style="margin-top:10px">
+          <button id="pomodoroStartBtn" class="modal-btn green-btn" type="button">Start</button>
+          <button id="pomodoroBackBtn" class="modal-btn blue-btn" type="button">Back</button>
+        </div>
+      </div>
     </div>
   </div>
-
-  </main> 
 
   <script src="home.js" defer></script>
   <script>lucide.createIcons();</script>

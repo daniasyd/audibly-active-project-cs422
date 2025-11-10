@@ -80,51 +80,297 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "home.html";
   });
 
+  // Result screen
+  const screenResult  = document.getElementById("screenResult");
+  const resultTitleEl = document.getElementById("resultTitle");
+
+  // Transition lock to prevent overlapping flows
+  let inCardTransition = false;
+
+  // Helper to cancel any speech/recognition before swapping screens
+  function stopAllAudioIO() {
+    try { stopAnswerRecognition?.(); } catch {}
+    try { window.speechSynthesis?.cancel(); } catch {}
+  }
+
+
+  // === Auto-grade helpers ===
+
+  // light tokenizer & cleaners
+  // Words to ignore in token comparisons (structure/fillers + generic labels)
+  const STOP_WORDS = new Set([
+    // articles / auxiliaries / connectors
+    "the","a","an","to","of","and","or","is","are","was","were","be","been","being",
+    "do","does","did","have","has","had","will","would","shall","should","can","could","may","might","must",
+    // prepositions / deictics / function words
+    "in","on","at","by","for","from","with","without","into","as","than","then",
+    "this","that","these","those","here","there",
+    "which","who","whom","whose","what","when","where","why","how",
+    // conversational fillers
+    "just","only","really","very","please","uh","um",
+    // domain-generic labels we don’t want to dominate similarity
+    "name","answer","value","type","kind","thing","stuff",
+    "capital","city","country","state","continent","color","number","year"
+  ]);
+
+  const NUMBER_WORDS = new Map([
+    ["zero","0"],["one","1"],["two","2"],["three","3"],["four","4"],["five","5"],["six","6"],["seven","7"],["eight","8"],["nine","9"],
+    ["ten","10"],["eleven","11"],["twelve","12"],["thirteen","13"],["fourteen","14"],["fifteen","15"],["sixteen","16"],["seventeen","17"],["eighteen","18"],["nineteen","19"],
+    ["twenty","20"],["thirty","30"],["forty","40"],["fifty","50"],["sixty","60"],["seventy","70"],["eighty","80"],["ninety","90"]
+  ]);
+
+  function stripDiacritics(s) { return s.normalize("NFD").replace(/\p{Diacritic}/gu, ""); }
+  
+  function normalize(text) {
+    if (!text) return "";
+    let t = String(text).toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu,"");
+    t = t.replace(/[^\p{L}\p{N}\s]/gu, " ");   // remove punctuation
+    t = t.replace(/\s+/g, " ").trim();         // collapse spaces
+    // number words → digits (keep your existing NUMBER_WORDS mapping if you have one)
+    t = t.split(" ").map(tok => NUMBER_WORDS?.get(tok) || tok).join(" ");
+    // light plural stem (dogs -> dog, boxes -> box)
+    t = t.replace(/\b(\p{L}+?)(s|es)\b/gu, "$1");
+    // DROP STOPWORDS here
+    t = t.split(" ").filter(tok => tok && !STOP_WORDS.has(tok)).join(" ");
+    return t.trim();
+  }
+
+  function tokens(s) {
+    return normalize(s).split(" ").filter(Boolean);
+  }
+
+
+  // Jaccard on tokens
+  function jaccard(a, b) {
+    const A = new Set(tokens(a)), B = new Set(tokens(b));
+    if (!A.size && !B.size) return 1;
+    let inter = 0;
+    for (const x of A) if (B.has(x)) inter++;
+    const uni = A.size + B.size - inter;
+    return inter / (uni || 1);
+  }
+
+  // Levenshtein similarity on characters
+  function editSim(a, b) {
+    const s = normalize(a), t = normalize(b);
+    const n = s.length, m = t.length;
+    if (!n && !m) return 1;
+    const dp = Array.from({length: n+1}, () => new Array(m+1).fill(0));
+    for (let i=0;i<=n;i++) dp[i][0] = i;
+    for (let j=0;j<=m;j++) dp[0][j] = j;
+    for (let i=1;i<=n;i++) {
+      for (let j=1;j<=m;j++) {
+        const cost = s[i-1] === t[j-1] ? 0 : 1;
+        dp[i][j] = Math.min(
+          dp[i-1][j] + 1,
+          dp[i][j-1] + 1,
+          dp[i-1][j-1] + cost
+        );
+      }
+    }
+    const dist = dp[n][m];
+    return 1 - (dist / Math.max(1, Math.max(n, m)));
+  }
+
+  // Combine signals → score in [0,1]
+  function combinedScore(user, correct) {
+    const U = normalize(user), C = normalize(correct);
+    if (U && U === C) return 1;
+    const jac = jaccard(U, C);
+    const ed  = editSim(U, C);
+    // balance typos (edit) and multi-word overlap (jaccard)
+    return Math.max(0, Math.min(1, 0.50 * ed + 0.50 * jac));
+  }
+
+  // small token helpers
+  function tokenArray(s) { return tokens(s); }
+  function hasSignificantOverlap(userToks, correctToks) {
+    // any shared token of length >= 4?
+    const C = new Set(correctToks);
+    return userToks.some(t => t.length >= 4 && C.has(t));
+  }
+  function isNonEmptySubset(userToks, correctToks) {
+    if (userToks.length === 0) return false;
+    const C = new Set(correctToks);
+    return userToks.every(t => C.has(t));
+  }
+
+  function hasTokenSubstringOverlap(userToks, correctToks) {
+    // e.g., "melon" in "watermelon" or "nyc" in "newyorkcity" (we’ll still require len>=4)
+    for (const u of userToks) {
+      if (u.length < 4) continue;
+      for (const c of correctToks) {
+        if (c.length < 4) continue;
+        if (c.includes(u) || u.includes(c)) return true;
+      }
+    }
+    return false;
+  }
+
+  function overlapStats(userToks, correctToks) {
+    const C = new Set(correctToks);
+    let overlap = 0;
+    for (const t of userToks) if (C.has(t)) overlap++;
+    const coverage   = correctToks.length ? overlap / correctToks.length : 0; // how much of correct covered
+    const userRecall = userToks.length ? overlap / userToks.length : 0;       // how much of user matches
+    return { overlap, coverage, userRecall };
+  }
+
+
+
+  // Evaluate against one or many acceptable answers
+  function evaluateAnswer(userRaw, correctRawOrArray) {
+    const variants = Array.isArray(correctRawOrArray)
+      ? correctRawOrArray
+      : String(correctRawOrArray || "").split("|");
+
+    // compute best score across variants
+    let best = 0, bestVariant = variants[0] || "";
+    for (const v of variants) {
+      const s = combinedScore(userRaw, v);
+      if (s > best) { best = s; bestVariant = v; }
+    }
+
+    // dynamic thresholds by length
+    const ctoks = tokens(bestVariant);
+    const utoks = tokens(userRaw);
+
+    const lenC = ctoks.length;
+    let HI = 0.88, LO = 0.55;
+    if (lenC <= 3) HI = 0.92;          // very short correct answers: stricter for autocorrect
+    if (lenC >= 4) LO = 0.50;          // multi-word / longer answers: slightly more lenient for partials
+
+    // subset / overlap heuristics → send to manual review instead of auto-incorrect
+    const subsetPartial    = (ctoks.length >= 2) && isNonEmptySubset(utoks, ctoks);
+    const overlapPartial   = hasSignificantOverlap(utoks, ctoks);
+    const substringPartial = hasTokenSubstringOverlap(utoks, ctoks);
+
+
+    if (best >= HI) return { kind: "auto-correct",   score: best, match: bestVariant };
+
+    // if it’s clearly low **but** we detect subset/overlap, keep it in review
+    if (best <= LO) {
+      if (subsetPartial || overlapPartial || substringPartial) {
+        const { overlap, coverage } = overlapStats(utoks, ctoks);
+        const isLong = ctoks.length >= 4;
+        // Require stronger overlap for long answers; otherwise auto-incorrect
+        if (isLong && (overlap < 2 || coverage < 0.25)) {
+          return { kind: "auto-incorrect", score: best, match: bestVariant };
+        }
+        return { kind: "needs-review", score: best, match: bestVariant };
+      }
+      return { kind: "auto-incorrect", score: best, match: bestVariant };
+    }
+
+    // middle band → manual review
+    return { kind: "needs-review", score: best, match: bestVariant };
+  }
+
+
+
+
+
   // --- Screen togglers (ensure only one screen visible)
-  function showQuestion() {
-    screenQuestion?.classList.remove("hidden");
+
+  function resetResultUI() {
+    if (!resultTitleEl) return;
+    resultTitleEl.textContent = "";
+    resultTitleEl.classList.remove("result-good", "result-bad");
+  }
+
+  function hideAllScreens() {
+    screenQuestion?.classList.add("hidden");
     screenAnswer?.classList.add("hidden");
     screenReview?.classList.add("hidden");
     screenSummary?.classList.add("hidden");
     screenBreak?.classList?.add("hidden");
-    showTopChrome();     // <—
+    screenResult?.classList.add("hidden");
+  }
+
+  function showQuestion() {
+    hideAllScreens();
+    resetResultUI();
+    screenQuestion?.classList.remove("hidden");
+    showTopChrome?.();
   }
 
   function showAnswer() {
-    screenQuestion?.classList.add("hidden");
+    hideAllScreens();
+    resetResultUI();
     screenAnswer?.classList.remove("hidden");
-    screenReview?.classList.add("hidden");
-    screenSummary?.classList.add("hidden");
-    screenBreak?.classList?.add("hidden");
-    showTopChrome();     // <—
+    showTopChrome?.();
   }
 
   function showReview() {
-    screenQuestion?.classList.add("hidden");
-    screenAnswer?.classList.add("hidden");
+    hideAllScreens();
+    resetResultUI();
     screenReview?.classList.remove("hidden");
-    screenSummary?.classList.add("hidden");
-    screenBreak?.classList?.add("hidden");
-    showTopChrome();     // <—
+    showTopChrome?.();
   }
 
   function showSummary() {
-    screenQuestion?.classList.add("hidden");
-    screenAnswer?.classList.add("hidden");
-    screenReview?.classList.add("hidden");
+    hideAllScreens();
+    resetResultUI();
     screenSummary?.classList.remove("hidden");
-    screenBreak?.classList?.add("hidden");
-    hideTopChrome();     // <—
+    hideTopChrome?.();
   }
 
   function showBreak() {
-    screenQuestion?.classList.add("hidden");
-    screenAnswer?.classList.add("hidden");
-    screenReview?.classList.add("hidden");
-    screenSummary?.classList.add("hidden");
+    hideAllScreens();
+    resetResultUI();
     screenBreak?.classList.remove("hidden");
-    hideTopChrome();     // <—
+    hideTopChrome?.();
   }
+
+
+
+  function showResultScreen(isCorrect) {
+    hideAllScreens();              // hides all other screens first
+    // do NOT resetResultUI() here (we’re about to set it)
+    if (resultTitleEl) {
+      resultTitleEl.textContent = isCorrect
+        ? "Correct, well done!"
+        : "Incorrect, better luck next time!";
+      resultTitleEl.classList.toggle("result-good", isCorrect);
+      resultTitleEl.classList.toggle("result-bad", !isCorrect);
+    }
+    screenResult?.classList.remove("hidden");
+  }
+
+
+  async function showResultAndAdvance(isCorrect) {
+    if (isOnBreak) return;                 // if Pomodoro break triggered, don’t show result
+    if (inCardTransition) return;          // guard against double-triggers
+    inCardTransition = true;
+
+    stopAllAudioIO();
+    showResultScreen(isCorrect);
+
+    // Count it NOW so summary/break see the right numbers
+    setReviewOutcome(isCorrect);           // your existing counter incrementer
+
+    // Speak the result (blocking), then move on
+    try {
+      const phrase = isCorrect
+        ? "Correct, well done!"
+        : "Incorrect, better luck next time!";
+      // re-use your TTS; if you have speakText()/speak() wrapper, use that:
+      await new Promise((resolve) => {
+        const u = new SpeechSynthesisUtterance(phrase);
+        u.onend = resolve; u.onerror = resolve;
+        window.speechSynthesis.speak(u);
+      });
+    } catch {}
+
+    // Small pause so the UI feels responsive but not abrupt
+    await new Promise(r => setTimeout(r, 250));
+
+    // Now continue as usual
+    nextCardOrFinish();
+    inCardTransition = false;
+  }
+
+
 
   function setBreakTimer(secs) {
     if (breakTimerEl) breakTimerEl.textContent = fmt(Math.max(0, secs));
@@ -445,7 +691,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (silenceTimer) { clearInterval(silenceTimer); silenceTimer = null; }
       if (isOnBreak) return;  // ⬅️ don’t go to review during break
       const userText = (userAnswerText?.textContent || "").trim();
-      proceedToReviewFlow({ userText, correctText: currentCorrectAnswer });
+      // support multiple correct variants with "a|b|c" if you want
+      const correctRaw = currentCorrectAnswer; 
+      const verdict = evaluateAnswer(userText, correctRaw);
+
+      if (verdict.kind === "auto-correct") {
+        showResultAndAdvance(true);
+      } else if (verdict.kind === "auto-incorrect") {
+        showResultAndAdvance(false);
+      } else {
+        proceedToReviewFlow({ userText, correctText: correctRaw });
+      }
+
     };
 
 
@@ -557,27 +814,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 500);
   }
 
-  async function setReviewOutcome(isCorrect) {
-    // Hide the button
-    countCorrectBtn?.classList.add("hidden");
+  function setReviewOutcome(isCorrect) {
+  // just update counters — no TTS, no UI, no advancing here
+  if (isCorrect) correctCount++; else incorrectCount++;
 
-    // Update counters
-    if (isCorrect) correctCount++; else incorrectCount++;
+  // Hide button so it doesn't remain visible
+  countCorrectBtn?.classList.add("hidden");
 
-    // Outcome UI + TTS
-    reviewOutcome.classList.remove("hidden", "outcome-good", "outcome-bad");
-    if (isCorrect) {
-      reviewOutcome.textContent = "Well Done!";
-      reviewOutcome.classList.add("outcome-good");
-      await speakTextAndWait("Well done!");
-    } else {
-      reviewOutcome.textContent = "You'll get it next time";
-      reviewOutcome.classList.add("outcome-bad");
-      await speakTextAndWait("You will get it next time.");
-    }
+  // Optionally update the outcome UI if you want,
+  // or leave it invisible since the Result screen is shown immediately
+}
 
-    nextCardOrFinish();
-  }
 
   function nextCardOrFinish() {
     stopAnswerRecognition(); // safety
@@ -602,7 +849,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function proceedToReviewFlow({ userText, correctText }) {
-    if (isOnBreak) return; // bail if break just started
+    if (isOnBreak || inCardTransition) return;
     reviewUserText.textContent = userText && userText !== "..." ? userText : "(no answer)";
     reviewCorrectText.textContent = correctText || "(no correct answer)";
     showReview();
@@ -616,9 +863,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const ans = await listenForYesNo({ windowMs: 5000, reprompt: true });
     if (isOnBreak) return;  // break started while we were waiting
     if (ans === "yes") {
-      await setReviewOutcome(true);
+      showResultAndAdvance(true);
+      return;
     } else if (ans === "no") {
-      await setReviewOutcome(false);
+      showResultAndAdvance(false);
+      return;
     } else {
       // No clear voice response; leave the button visible for manual tap
     }
@@ -632,7 +881,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   countCorrectBtn?.addEventListener("click", async () => {
     if (isOnBreak) return;  // ⬅️ ignore taps during break
-    await setReviewOutcome(true);
+    showResultAndAdvance(true);
   });
 
 
