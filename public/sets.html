@@ -8,8 +8,23 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="page-home">
-  <!-- Keep your existing black header + icons -->
   <header class="top-bar">
+    <header class="top-bar">
+    <div class="profile-container">
+      <button class="profile-btn">
+        <img src="assets/user.png" alt="User icon" class="profile-icon" />
+      </button>
+
+      <div id="profileMenu" class="profile-menu hidden">
+        <button id="logoutBtn" class="logout-button">Log Out</button>
+      </div>
+    </div>
+
+  <nav class="icon-bar">
+    <!-- existing home / sets / stats icons -->
+  </nav>
+</header>
+
     <nav class="icon-bar">
       <a class="icon-button" href="home.html" aria-label="Home">
         <i data-lucide="home" class="icon"></i>

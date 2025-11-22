@@ -37,9 +37,6 @@ body {
   margin: 0;
 }
 
-/* === LOGIN PAGE STYLING === */
-
-
 
 /* Simple centered white card */
 .card {
@@ -315,12 +312,12 @@ button, .primary {
   display: flex;
   justify-content: center;
   width: 100%;
-  max-width: 520px;                   /* don’t get too wide on desktops */
+  max-width: 520px;                
 }
 
 .waveform {
   width: min(80vw, 175px);
-  max-height: 30svh; /* Never taller than 30% of the screen */
+  max-height: 30svh; 
   height: auto;
   border-radius: 12px;
 
@@ -401,7 +398,6 @@ button, .primary {
 
 .recent-btn { background-color: #a3bce9; color: #333; }
 
-/* === CREATE PAGE FORM === */
 
 /* === CREATE PAGE === */
 
@@ -491,16 +487,16 @@ button, .primary {
 /* The blue “Question : Answer [trash]” row */
 .qa-row {
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto; /* Q | : | A | 🗑 */
+  grid-template-columns: 1fr auto 1fr auto; 
   align-items: center;
   width: min(90vw, 500px);
   margin: 0 auto;
   background-color: var(--light-blue);
   border: 1px solid var(--light-blue);
   border-radius: 10px;
-  padding: 8px;                 /* internal breathing room */
+  padding: 8px;                 
   column-gap: 10px;
-  box-sizing: border-box;       /* prevent overflow on mobile */
+  box-sizing: border-box;      
 }
 
 /* Inputs: equal width, no borders fighting the blue container */
@@ -512,7 +508,7 @@ button, .primary {
   font-size: 1rem;
   color: #000;
   padding: 6px 8px;
-  min-width: 0;                 /* IMPORTANT: prevents overflow in grid */
+  min-width: 0;                
 }
 
 /* The colon sits in its own auto column */
@@ -527,7 +523,7 @@ button, .primary {
 /* Trash button is INSIDE the blue box at the far right */
 .delete-btn {
   grid-column: 4;
-  justify-self: end;            /* hugs the right edge inside the blue box */
+  justify-self: end;            
   background: #000;
   color: #fff;
   border: none;
@@ -607,7 +603,6 @@ button, .primary {
 
 
 
-
 /* === FINISH PAGE === */
 
 .finish-main {
@@ -645,8 +640,8 @@ button, .primary {
   height: auto;
   object-fit: contain;
   margin-bottom: 8px;
-  mix-blend-mode: multiply;  /* blends whites into page background */
-  opacity: 0.95;             /* softens harsh white edges */
+  mix-blend-mode: multiply;  
+  opacity: 0.95;             
 }
 
 
@@ -714,12 +709,11 @@ button, .primary {
 .sets-main {
   display: flex;
   flex-direction: column;
-  align-items: center;           /* center buttons horizontally */
+  align-items: center;          
   gap: 16px;
   padding: 24px;
-  flex: 1 1 auto;                /* fill space below the header */
+  flex: 1 1 auto;               
   width: 100%;
-  /* important: let the whole page scroll; do NOT make sets-main its own scroller */
   overflow: visible;
 }
 
@@ -788,12 +782,11 @@ button, .primary {
 
 /* ✅ Bottom row lives in normal flow, so nothing can be under it */
 .fab-row {
-  margin-top: auto;                        /* pushes this row to the bottom of .sets-main */
+  margin-top: auto;                        
   width: 100%;
   display: flex;
   justify-content: center;
   padding: 16px 0 calc(env(safe-area-inset-bottom) + 8px);
-  /* no position: sticky/fixed here */
 }
 
 /* Plus button visuals */
@@ -833,7 +826,7 @@ button, .primary {
   flex: 1;
   text-align: left;
   justify-content: flex-start;
-  padding-right: 44px; /* space for trash */
+  padding-right: 44px; 
 }
 
 /* Trash icon button */
@@ -934,7 +927,7 @@ button, .primary {
   border-radius: 10px;
   font-weight: 700;
   border: 1px solid var(--border);
-  background: #fdf7b4; /* yellow like your Study button */
+  background: #fdf7b4;
   color: #000;
   cursor: pointer;
 }
@@ -982,7 +975,7 @@ button, .primary {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 33vh; /* roughly one-third of the page height */
+  min-height: 33vh; 
   text-align: center;
 }
 
@@ -1019,13 +1012,13 @@ button, .primary {
 
 /* === Study Set title color variants === */
 .study-setbox-yellow {
-  background: #fdf7b4;           /* same yellow used elsewhere */
+  background: #fdf7b4;          
   border: 2px solid #fdf7b4;
   box-shadow: 2px 2px 0 #00000030;
 }
 
 .study-setbox-green {
-  background: #51aa66;           /* your green tone */
+  background: #51aa66;           
   border: 2px solid #51aa66;
   box-shadow: 2px 2px 0 #00000030;
 }
@@ -1043,7 +1036,6 @@ button, .primary {
   width: 100%;
 }
 
-/* Optional helper if you want an explicit "shown" class */
 .visible { display: flex; }
 
 
@@ -1118,7 +1110,7 @@ button, .primary {
   font-weight: 500;
   color: #333;
   font-size: clamp(16px, 3.5vw, 18px);
-  min-height: 24px;       /* reserve space even before text arrives */
+  min-height: 24px;       
   max-width: 80%;
   word-wrap: break-word;
 }
@@ -1133,7 +1125,7 @@ button, .primary {
 }
 
 .answer-skip-btn {
-  background: #51aa66; /* same green tone as study-setbox-green */
+  background: #51aa66; 
   color: #fff;
   font-weight: 700;
   border: none;
@@ -1182,7 +1174,7 @@ button, .primary {
 }
 
 .review-count-btn {
-  background: var(--light-blue, #b7dafc); /* light blue */
+  background: var(--light-blue, #b7dafc); 
   color: #000;
   font-weight: 700;
   border: 1px solid var(--light-blue, #b7dafc);
@@ -1204,8 +1196,8 @@ button, .primary {
   margin-top: 14px;
 }
 
-.outcome-good { color: #2f8f46; }  /* green */
-.outcome-bad  { color: #cc2b2b; }  /* red   */
+.outcome-good { color: #2f8f46; } 
+.outcome-bad  { color: #cc2b2b; }  
 
 
 
@@ -1238,8 +1230,8 @@ button, .primary {
   margin: 0;
 }
 
-.summary-number-green { color: #2f8f46; }  /* matches your green tone */
-.summary-number-red   { color: #cc2b2b; }  /* your red tone */
+.summary-number-green { color: #2f8f46; }  
+.summary-number-red   { color: #cc2b2b; }  
 
 .summary-caption {
   color: #000;
@@ -1256,7 +1248,6 @@ button, .primary {
   margin: 18px auto 0;
 }
 
-/* Pink button variant to match your palette (like progress-btn) */
 .pink-btn {
   background: #f9c6d2;
   border-color: #f9c6d2;
@@ -1318,7 +1309,7 @@ button, .primary {
 .break-number-green {
   text-align: center;
   font-weight: 900;
-  color: #2f8f46; /* same green tone you use elsewhere */
+  color: #2f8f46; 
   font-size: clamp(20px, 6vw, 28px);
   margin: 0;
 }
@@ -1338,7 +1329,59 @@ button, .primary {
   font-size: clamp(24px, 7vw, 34px);
   margin: 20px 0 0;
 }
-.result-good { color: #2f8f46; }  /* green */
-.result-bad  { color: #cc2b2b; }  /* red   */
+.result-good { color: #2f8f46; }  
+.result-bad  { color: #cc2b2b; }  
 
+/* === PROFILE ICON + MENU === */
 
+.profile-container {
+  position: absolute;
+  top: 20px;
+  right: 50px;
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.profile-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid var(--green);
+}
+
+.profile-menu {
+  position: absolute;
+  top: 55px;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 6px 0;
+  width: 100px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.profile-menu.hidden {
+  display: none;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: black;
+}
+
+.logout-button:hover {
+  background: #f5f5f5;
+}

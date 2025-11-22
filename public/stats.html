@@ -9,6 +9,15 @@
 </head>
 <body class="page-home">
   <header class="top-bar">
+    <div class="profile-container">
+      <button class="profile-btn" type="button">
+        <img src="assets/user.png" alt="User icon" class="profile-icon" />
+      </button>
+
+      <div id="profileMenu" class="profile-menu hidden">
+        <button id="logoutBtn" class="logout-button" type="button">Log Out</button>
+      </div>
+    </div>
     <nav class="icon-bar">
       <a class="icon-button" href="home.html" aria-label="Home">
         <i data-lucide="home" class="icon"></i>
@@ -27,6 +36,34 @@
     <p>(Placeholder) Your progress and charts will appear here.</p>
   </main>
 
-  <script>lucide.createIcons();</script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const profileBtn = document.querySelector(".profile-btn");
+      const menu = document.getElementById("profileMenu");
+      const logoutBtn = document.getElementById("logoutBtn");
+
+      if (!profileBtn || !menu || !logoutBtn) return;
+
+      profileBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        menu.classList.toggle("hidden");
+      });
+
+      logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        localStorage.removeItem("token");
+        sessionStorage.clear();
+        window.location.href = "index.html";
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!profileBtn.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.add("hidden");
+        }
+      });
+    });
+
+    lucide.createIcons();
+  </script>
 </body>
 </html>

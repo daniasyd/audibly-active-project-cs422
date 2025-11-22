@@ -282,4 +282,30 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.href = "create.html";
     });
   }
+
+    // === PROFILE MENU LOGIC ===
+  const profileBtn = document.querySelector(".profile-btn");
+  const menu = document.getElementById("profileMenu");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (profileBtn && menu && logoutBtn) {
+    // Toggle menu
+    profileBtn.addEventListener("click", () => {
+      menu.classList.toggle("hidden");
+    });
+
+    // Log out
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("token");
+      sessionStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!profileBtn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.add("hidden");
+      }
+    });
+  }
 });

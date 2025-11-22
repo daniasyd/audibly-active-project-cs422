@@ -125,3 +125,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     recentBtn.removeAttribute("href");
   }
 });
+
+// === PROFILE MENU LOGIC ===
+document.addEventListener("DOMContentLoaded", () => {
+  const profileBtn = document.querySelector(".profile-btn");
+  const menu = document.getElementById("profileMenu");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (!profileBtn || !menu || !logoutBtn) return;
+
+  // Toggle menu
+  profileBtn.addEventListener("click", () => {
+    menu.classList.toggle("hidden");
+  });
+
+  // Log out
+  logoutBtn.addEventListener("click", () => {
+    // DELETE user token/session from storage
+    localStorage.removeItem("token");
+    sessionStorage.clear();
+
+    // Redirect to login
+    window.location.href = "index.html";
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!profileBtn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.add("hidden");
+    }
+  });
+});

@@ -10,6 +10,16 @@
 <body class="page-home">
   <!-- Top nav: Home (left), Sets (middle), Stats (right) -->
   <header class="top-bar">
+    <div class="profile-container">
+      <button class="profile-btn">
+        <img src="assets/user.png" alt="Profile" class="profile-icon" />
+      </button>
+
+      <div id="profileMenu" class="profile-menu hidden">
+        <button id="logoutBtn" class="logout-button">Log Out</button>
+      </div>
+    </div>
+
     <nav class="icon-bar">
       <a class="icon-button active" href="home.html" aria-label="Home">
         <i data-lucide="home" class="icon"></i>
@@ -29,7 +39,7 @@
     <!-- Waveform -->
     <div class="waveform-container">
       <img
-        src="assets/waveform.gif"
+        src="assets/waveform.png"
         alt="Audio waveform animation"
         class="waveform"
       />
