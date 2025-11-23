@@ -18,6 +18,7 @@
         <button id="logoutBtn" class="logout-button" type="button">Log Out</button>
       </div>
     </div>
+    
     <nav class="icon-bar">
       <a class="icon-button" href="home.html" aria-label="Home">
         <i data-lucide="home" class="icon"></i>
@@ -31,39 +32,63 @@
     </nav>
   </header>
 
-  <main class="page-main">
-    <h1>Stats</h1>
-    <p>(Placeholder) Your progress and charts will appear here.</p>
+  <main class="stats-main">
+    <!-- Header -->
+    <section class="stats-header">
+      <h1 class="stats-title">Your Stats</h1>
+      <p class="stats-subtitle">
+        Track how your study sessions are going over time.
+      </p>
+    </section>
+
+    <!-- Top summary cards -->
+    <section class="stats-grid">
+      <article class="stats-card">
+        <h2 class="stats-card-label">Total Sessions</h2>
+        <p id="statTotalSessions" class="stats-card-value">0</p>
+        <p class="stats-card-caption">All time</p>
+      </article>
+
+      <article class="stats-card">
+        <h2 class="stats-card-label">Total Cards Studied</h2>
+        <p id="statTotalCards" class="stats-card-value">0</p>
+        <p class="stats-card-caption">Across all sessions</p>
+      </article>
+
+      <article class="stats-card">
+        <h2 class="stats-card-label">Cards Recalled</h2>
+        <p id="statTotalCorrect" class="stats-card-value">0</p>
+        <p class="stats-card-caption">Marked correct</p>
+      </article>
+
+      <article class="stats-card">
+        <h2 class="stats-card-label">Accuracy</h2>
+        <p id="statAccuracy" class="stats-card-value">0%</p>
+        <p class="stats-card-caption">Correct / total</p>
+      </article>
+    </section>
+
+    <!-- Pomodoro breakdown -->
+    <section class="stats-section">
+      <h2 class="stats-subtitle">Pomodoro Usage</h2>
+      <p class="stats-text">
+        <span id="statPomodoroSessions">0</span> Pomodoro sessions
+        out of <span id="statTotalSessions2">0</span> total sessions.
+      </p>
+    </section>
+
+    <!-- Recent sessions list -->
+    <section class="stats-section">
+      <h2 class="stats-subtitle">Recent Sessions</h2>
+      <ul id="statsRecentList" class="stats-list">
+        <li class="stats-empty">
+          No sessions yet. Start a study session to see stats here.
+        </li>
+      </ul>
+    </section>
   </main>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const profileBtn = document.querySelector(".profile-btn");
-      const menu = document.getElementById("profileMenu");
-      const logoutBtn = document.getElementById("logoutBtn");
-
-      if (!profileBtn || !menu || !logoutBtn) return;
-
-      profileBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        menu.classList.toggle("hidden");
-      });
-
-      logoutBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        localStorage.removeItem("token");
-        sessionStorage.clear();
-        window.location.href = "index.html";
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!profileBtn.contains(e.target) && !menu.contains(e.target)) {
-          menu.classList.add("hidden");
-        }
-      });
-    });
-
-    lucide.createIcons();
-  </script>
+  <script src="stats.js" defer></script>
+  <script>lucide.createIcons();</script>
 </body>
 </html>

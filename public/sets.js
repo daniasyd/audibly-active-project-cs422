@@ -37,6 +37,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     // just grab the container that wraps them. Here we target by IDs:
     const modeButtonsRow = document.querySelector(".mode-buttons");
 
+      // Pomodoro info elements
+    const pomodoroInfoBtn   = document.getElementById("pomodoroInfoBtn");
+    const pomodoroInfoModal = document.getElementById("pomodoroInfoModal");
+    const pomodoroInfoClose = document.getElementById("pomodoroInfoClose");
+
+
 
     function openModeModal(setObj) {
     selectedSet = setObj || null;
@@ -97,6 +103,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (modeBackBtn) {
     modeBackBtn.addEventListener("click", () => closeModeModal());
     }
+    
+    // --- Pomodoro info modal behavior ---
+    function openPomodoroInfo() {
+      if (!pomodoroInfoModal) return;
+      pomodoroInfoModal.classList.remove("hidden");
+      pomodoroInfoModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closePomodoroInfo() {
+      if (!pomodoroInfoModal) return;
+      pomodoroInfoModal.classList.add("hidden");
+      pomodoroInfoModal.setAttribute("aria-hidden", "true");
+    }
+
+    // Click on the little "i" (don't trigger Pomodoro button itself)
+    pomodoroInfoBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();   // prevents opening the Pomodoro form
+      e.preventDefault();
+      openPomodoroInfo();
+    });
+
+    // Close button inside the info modal
+    pomodoroInfoClose?.addEventListener("click", closePomodoroInfo);
+
+    // Clicking outside the info box closes it
+    pomodoroInfoModal?.addEventListener("click", (e) => {
+      if (e.target === pomodoroInfoModal) {
+        closePomodoroInfo();
+      }
+    });
 
 
   // ---- small helpers (consistent color + id getter) ----

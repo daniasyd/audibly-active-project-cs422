@@ -3,15 +3,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const recentBtn = document.getElementById("recentBtn");
 
   // Modal elements (same IDs/classes as sets.html so CSS matches)
-  const modeOverlay     = document.getElementById("modeOverlay");
-  const modeNormalBtn   = document.getElementById("modeNormalBtn");
+  const modeOverlay = document.getElementById("modeOverlay");
+  const modeNormalBtn = document.getElementById("modeNormalBtn");
   const modePomodoroBtn = document.getElementById("modePomodoroBtn");
-  const modeBackBtn     = document.getElementById("modeBackBtn");
+  const modeBackBtn = document.getElementById("modeBackBtn");
+
+  const pomodoroInfoBtn = document.getElementById("pomodoroInfoBtn");
+  const pomodoroInfoModal = document.getElementById("pomodoroInfoModal");
+  const pomodoroInfoClose = document.getElementById("pomodoroInfoClose");
+
 
   // NEW: Pomodoro mini-form pieces
-  const pomodoroForm     = document.getElementById("pomodoroForm");
+  const pomodoroForm = document.getElementById("pomodoroForm");
   const pomodoroStartBtn = document.getElementById("pomodoroStartBtn");
-  const pomodoroBackBtn  = document.getElementById("pomodoroBackBtn");
+  const pomodoroBackBtn = document.getElementById("pomodoroBackBtn");
   const workMinutesInput = document.getElementById("workMinutes");
   const restMinutesInput = document.getElementById("restMinutes");
 
@@ -73,13 +78,40 @@ document.addEventListener("DOMContentLoaded", async () => {
   // NEW: Start pomodoro with work/rest params
   pomodoroStartBtn?.addEventListener("click", () => {
     if (!latestSet) return;
-    const id   = encodeURIComponent(latestSet.id || latestSet._id);
+    const id = encodeURIComponent(latestSet.id || latestSet._id);
     const work = Math.max(1, Math.min(180, parseInt(workMinutesInput?.value || "25", 10) || 25));
     const rest = Math.max(1, Math.min(120, parseInt(restMinutesInput?.value || "5", 10) || 5));
     window.location.href = `study.html?id=${id}&mode=pomodoro&work=${work}&rest=${rest}`;
   });
 
   modeBackBtn?.addEventListener("click", () => closeModeModal());
+
+  function openPomodoroInfo() {
+    if (!pomodoroInfoModal) return;
+    pomodoroInfoModal.classList.remove("hidden");
+    pomodoroInfoModal.setAttribute("aria-hidden", "false");
+  }
+
+  function closePomodoroInfo() {
+    if (!pomodoroInfoModal) return;
+    pomodoroInfoModal.classList.add("hidden");
+    pomodoroInfoModal.setAttribute("aria-hidden", "true");
+  }
+
+  pomodoroInfoBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();   // don't trigger the Pomodoro button's main click
+    e.preventDefault();
+    openPomodoroInfo();
+  });
+
+  pomodoroInfoClose?.addEventListener("click", closePomodoroInfo);
+
+  pomodoroInfoModal?.addEventListener("click", (e) => {
+    if (e.target === pomodoroInfoModal) {
+      closePomodoroInfo();
+    }
+  });
+
 
   // Default state
   recentBtn.textContent = "Loading…";

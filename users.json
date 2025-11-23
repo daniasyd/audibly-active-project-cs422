@@ -6,5 +6,9 @@
   {
     "username": "a",
     "passwordHash": "$2a$10$.MH6hrU3UsTP5NqXT2XmiOkaUL9kgh0uzl2IWUT467.gRIGh/VuAu"
+  },
+  {
+    "username": "d",
+    "passwordHash": "$2a$10$vwlBv5bvyWj1tf/Tjj7W.eH3X6MdtjGSOV63zCmqdsalkvqIIcswK"
   }
 ]
