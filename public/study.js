@@ -1,43 +1,43 @@
 // study.js — Study flow (Question → Answer (dictation) → Review (yes/no) → Next card → Summary)
 document.addEventListener("DOMContentLoaded", async () => {
   // --- DOM refs
-  const backBtn           = document.getElementById("studyBackBtn");
-  const timerEl           = document.getElementById("studyTimer");
-  
-  const titleEl           = document.getElementById("studySetTitle");
+  const backBtn = document.getElementById("studyBackBtn");
+  const timerEl = document.getElementById("studyTimer");
 
-  const screenQuestion    = document.getElementById("screenQuestion");
-  const screenAnswer      = document.getElementById("screenAnswer");
-  const screenReview      = document.getElementById("screenReview");
-  const screenSummary     = document.getElementById("screenSummary");
+  const titleEl = document.getElementById("studySetTitle");
 
-  const audioGate         = document.getElementById("audioGate");
-  const audioGateBtn      = document.getElementById("audioGateBtn");
+  const screenQuestion = document.getElementById("screenQuestion");
+  const screenAnswer = document.getElementById("screenAnswer");
+  const screenReview = document.getElementById("screenReview");
+  const screenSummary = document.getElementById("screenSummary");
 
-  const userAnswerText    = document.getElementById("userAnswerText");
-  const reviewUserText    = document.getElementById("reviewUserText");
+  const audioGate = document.getElementById("audioGate");
+  const audioGateBtn = document.getElementById("audioGateBtn");
+
+  const userAnswerText = document.getElementById("userAnswerText");
+  const reviewUserText = document.getElementById("reviewUserText");
   const reviewCorrectText = document.getElementById("reviewCorrectText");
-  const countCorrectBtn   = document.getElementById("countCorrectBtn");
-  const reviewOutcome     = document.getElementById("reviewOutcome");
+  const countCorrectBtn = document.getElementById("countCorrectBtn");
+  const reviewOutcome = document.getElementById("reviewOutcome");
 
-  const screenBreak   = document.getElementById("screenBreak");
-  const breakTimerEl  = document.getElementById("breakTimer");
-  const breakRightEl  = document.getElementById("breakRight");
-  const breakHomeBtn  = document.getElementById("breakHomeBtn");
+  const screenBreak = document.getElementById("screenBreak");
+  const breakTimerEl = document.getElementById("breakTimer");
+  const breakRightEl = document.getElementById("breakRight");
+  const breakHomeBtn = document.getElementById("breakHomeBtn");
 
-  const skipBtn           = document.getElementById("skipBtn");
+  const skipBtn = document.getElementById("skipBtn");
 
-  const sumTime        = document.getElementById("sumTime");
-  const sumRight       = document.getElementById("sumRight");
-  const sumWrong       = document.getElementById("sumWrong");
-  const summaryTryBtn  = document.getElementById("summaryTryBtn");
+  const sumTime = document.getElementById("sumTime");
+  const sumRight = document.getElementById("sumRight");
+  const sumWrong = document.getElementById("sumWrong");
+  const summaryTryBtn = document.getElementById("summaryTryBtn");
   const summaryHomeBtn = document.getElementById("summaryHomeBtn");
 
 
   // --- URL params: ?id=<setId>&mode=<normal|pomodoro>
   const params = new URLSearchParams(location.search);
-  const setId  = params.get("id");
-  const mode   = (params.get("mode") || "normal").toLowerCase();
+  const setId = params.get("id");
+  const mode = (params.get("mode") || "normal").toLowerCase();
 
   const workMins = Math.max(1, parseInt(params.get("work") || "25", 10));
   const restMins = Math.max(1, parseInt(params.get("rest") || "5", 10));
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- iOS detection
   const isIOS = /iP(hone|od|ad)/.test(navigator.platform) ||
-                (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+    (navigator.userAgent.includes("Mac") && "ontouchend" in document);
 
   // --- Timer (elapsed up-counter)
   let startTime = Date.now();
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fmt = (s) => {
     const m = Math.floor(s / 60);
     const r = s % 60;
-    return `${String(m).padStart(2,"0")}:${String(r).padStart(2,"0")}`;
+    return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
   };
   const startTimer = () => {
     if (timerHandle) clearInterval(timerHandle);
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Result screen
-  const screenResult  = document.getElementById("screenResult");
+  const screenResult = document.getElementById("screenResult");
   const resultTitleEl = document.getElementById("resultTitle");
 
   // Transition lock to prevent overlapping flows
@@ -89,8 +89,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Helper to cancel any speech/recognition before swapping screens
   function stopAllAudioIO() {
-    try { stopAnswerRecognition?.(); } catch {}
-    try { window.speechSynthesis?.cancel(); } catch {}
+    try { stopAnswerRecognition?.(); } catch { }
+    try { window.speechSynthesis?.cancel(); } catch { }
   }
 
 
@@ -100,30 +100,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Words to ignore in token comparisons (structure/fillers + generic labels)
   const STOP_WORDS = new Set([
     // articles / auxiliaries / connectors
-    "the","a","an","to","of","and","or","is","are","was","were","be","been","being",
-    "do","does","did","have","has","had","will","would","shall","should","can","could","may","might","must",
+    "the", "a", "an", "to", "of", "and", "or", "is", "are", "was", "were", "be", "been", "being",
+    "do", "does", "did", "have", "has", "had", "will", "would", "shall", "should", "can", "could", "may", "might", "must",
     // prepositions / deictics / function words
-    "in","on","at","by","for","from","with","without","into","as","than","then",
-    "this","that","these","those","here","there",
-    "which","who","whom","whose","what","when","where","why","how",
+    "in", "on", "at", "by", "for", "from", "with", "without", "into", "as", "than", "then",
+    "this", "that", "these", "those", "here", "there",
+    "which", "who", "whom", "whose", "what", "when", "where", "why", "how",
     // conversational fillers
-    "just","only","really","very","please","uh","um",
+    "just", "only", "really", "very", "please", "uh", "um",
     // domain-generic labels we don’t want to dominate similarity
-    "name","answer","value","type","kind","thing","stuff",
-    "capital","city","country","state","continent","color","number","year"
+    "name", "answer", "value", "type", "kind", "thing", "stuff",
+    "capital", "city", "country", "state", "continent", "color", "number", "year"
   ]);
 
   const NUMBER_WORDS = new Map([
-    ["zero","0"],["one","1"],["two","2"],["three","3"],["four","4"],["five","5"],["six","6"],["seven","7"],["eight","8"],["nine","9"],
-    ["ten","10"],["eleven","11"],["twelve","12"],["thirteen","13"],["fourteen","14"],["fifteen","15"],["sixteen","16"],["seventeen","17"],["eighteen","18"],["nineteen","19"],
-    ["twenty","20"],["thirty","30"],["forty","40"],["fifty","50"],["sixty","60"],["seventy","70"],["eighty","80"],["ninety","90"]
+    ["zero", "0"], ["one", "1"], ["two", "2"], ["three", "3"], ["four", "4"], ["five", "5"], ["six", "6"], ["seven", "7"], ["eight", "8"], ["nine", "9"],
+    ["ten", "10"], ["eleven", "11"], ["twelve", "12"], ["thirteen", "13"], ["fourteen", "14"], ["fifteen", "15"], ["sixteen", "16"], ["seventeen", "17"], ["eighteen", "18"], ["nineteen", "19"],
+    ["twenty", "20"], ["thirty", "30"], ["forty", "40"], ["fifty", "50"], ["sixty", "60"], ["seventy", "70"], ["eighty", "80"], ["ninety", "90"]
   ]);
 
   function stripDiacritics(s) { return s.normalize("NFD").replace(/\p{Diacritic}/gu, ""); }
-  
+
   function normalize(text) {
     if (!text) return "";
-    let t = String(text).toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu,"");
+    let t = String(text).toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
     t = t.replace(/[^\p{L}\p{N}\s]/gu, " ");   // remove punctuation
     t = t.replace(/\s+/g, " ").trim();         // collapse spaces
     // number words → digits (keep your existing NUMBER_WORDS mapping if you have one)
@@ -155,16 +155,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const s = normalize(a), t = normalize(b);
     const n = s.length, m = t.length;
     if (!n && !m) return 1;
-    const dp = Array.from({length: n+1}, () => new Array(m+1).fill(0));
-    for (let i=0;i<=n;i++) dp[i][0] = i;
-    for (let j=0;j<=m;j++) dp[0][j] = j;
-    for (let i=1;i<=n;i++) {
-      for (let j=1;j<=m;j++) {
-        const cost = s[i-1] === t[j-1] ? 0 : 1;
+    const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+    for (let i = 0; i <= n; i++) dp[i][0] = i;
+    for (let j = 0; j <= m; j++) dp[0][j] = j;
+    for (let i = 1; i <= n; i++) {
+      for (let j = 1; j <= m; j++) {
+        const cost = s[i - 1] === t[j - 1] ? 0 : 1;
         dp[i][j] = Math.min(
-          dp[i-1][j] + 1,
-          dp[i][j-1] + 1,
-          dp[i-1][j-1] + cost
+          dp[i - 1][j] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j - 1] + cost
         );
       }
     }
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const U = normalize(user), C = normalize(correct);
     if (U && U === C) return 1;
     const jac = jaccard(U, C);
-    const ed  = editSim(U, C);
+    const ed = editSim(U, C);
     // balance typos (edit) and multi-word overlap (jaccard)
     return Math.max(0, Math.min(1, 0.50 * ed + 0.50 * jac));
   }
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const C = new Set(correctToks);
     let overlap = 0;
     for (const t of userToks) if (C.has(t)) overlap++;
-    const coverage   = correctToks.length ? overlap / correctToks.length : 0; // how much of correct covered
+    const coverage = correctToks.length ? overlap / correctToks.length : 0; // how much of correct covered
     const userRecall = userToks.length ? overlap / userToks.length : 0;       // how much of user matches
     return { overlap, coverage, userRecall };
   }
@@ -241,12 +241,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (lenC >= 4) LO = 0.50;          // multi-word / longer answers: slightly more lenient for partials
 
     // subset / overlap heuristics → send to manual review instead of auto-incorrect
-    const subsetPartial    = (ctoks.length >= 2) && isNonEmptySubset(utoks, ctoks);
-    const overlapPartial   = hasSignificantOverlap(utoks, ctoks);
+    const subsetPartial = (ctoks.length >= 2) && isNonEmptySubset(utoks, ctoks);
+    const overlapPartial = hasSignificantOverlap(utoks, ctoks);
     const substringPartial = hasTokenSubstringOverlap(utoks, ctoks);
 
 
-    if (best >= HI) return { kind: "auto-correct",   score: best, match: bestVariant };
+    if (best >= HI) return { kind: "auto-correct", score: best, match: bestVariant };
 
     // if it’s clearly low **but** we detect subset/overlap, keep it in review
     if (best <= LO) {
@@ -360,7 +360,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         u.onend = resolve; u.onerror = resolve;
         window.speechSynthesis.speak(u);
       });
-    } catch {}
+    } catch { }
 
     // Small pause so the UI feels responsive but not abrupt
     await new Promise(r => setTimeout(r, 250));
@@ -393,7 +393,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Header controls
-  const headerBack  = document.getElementById("studyBackBtn");
+  const headerBack = document.getElementById("studyBackBtn");
   const headerTimer = document.getElementById("studyTimer");
 
   function hideTopChrome() {
@@ -416,7 +416,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       o.type = "sine";
       o.frequency.setValueAtTime(880, ctx.currentTime);
       g.gain.setValueAtTime(0.0001, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.3,  ctx.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
       g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
 
       o.connect(g).connect(ctx.destination);
@@ -428,30 +428,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function playRing() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const g = ctx.createGain();
-    g.gain.value = 0.001;
-    g.connect(ctx.destination);
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const g = ctx.createGain();
+      g.gain.value = 0.001;
+      g.connect(ctx.destination);
 
-    // 3 short beeps: A5, C6, E6
-    const notes = [880, 1046.5, 1318.5];
-    let t = ctx.currentTime;
-    notes.forEach((f) => {
-      const o = ctx.createOscillator();
-      o.type = "sine";
-      o.frequency.setValueAtTime(f, t);
-      o.connect(g);
-      g.gain.exponentialRampToValueAtTime(0.3, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
-      o.start(t);
-      o.stop(t + 0.3);
-      t += 0.35;
-    });
-  } catch (e) {
-    console.warn("ring failed:", e);
+      // 3 short beeps: A5, C6, E6
+      const notes = [880, 1046.5, 1318.5];
+      let t = ctx.currentTime;
+      notes.forEach((f) => {
+        const o = ctx.createOscillator();
+        o.type = "sine";
+        o.frequency.setValueAtTime(f, t);
+        o.connect(g);
+        g.gain.exponentialRampToValueAtTime(0.3, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+        o.start(t);
+        o.stop(t + 0.3);
+        t += 0.35;
+      });
+    } catch (e) {
+      console.warn("ring failed:", e);
+    }
   }
-}
 
 
   // --- TTS helpers (reverted to the working pattern for your setup)
@@ -462,7 +462,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const u = new SpeechSynthesisUtterance(`Question: ${questionText}`);
         u.lang = opts.lang ?? "en-US";
         u.volume = 1.0;
-        if (opts.rate)  u.rate = opts.rate;
+        if (opts.rate) u.rate = opts.rate;
         if (opts.pitch) u.pitch = opts.pitch;
 
         const voices = speechSynthesis.getVoices() || [];
@@ -480,7 +480,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const t0 = Date.now();
         const tick = () => {
           if (!speechSynthesis.speaking && Date.now() - t0 < 1200) {
-            try { speechSynthesis.resume(); } catch {}
+            try { speechSynthesis.resume(); } catch { }
             requestAnimationFrame(tick);
           }
         };
@@ -504,7 +504,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const u = new SpeechSynthesisUtterance(text);
         u.lang = opts.lang ?? "en-US";
         u.volume = 1.0;
-        if (opts.rate)  u.rate = opts.rate;
+        if (opts.rate) u.rate = opts.rate;
         if (opts.pitch) u.pitch = opts.pitch;
 
         const voices = speechSynthesis.getVoices() || [];
@@ -524,7 +524,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const t0 = Date.now();
         const tick = () => {
           if (!speechSynthesis.speaking && Date.now() - t0 < 1200) {
-            try { speechSynthesis.resume(); } catch {}
+            try { speechSynthesis.resume(); } catch { }
             requestAnimationFrame(tick);
           }
         };
@@ -569,7 +569,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // stop any active listening or speech ASAP
     stopAnswerRecognition();
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch {}
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch { }
 
     // populate "X out of Y" using stable session totals
     if (breakRightEl) breakRightEl.textContent = `${correctCount} out of ${sessionTotal}`;
@@ -607,7 +607,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
-  
+
 
   // --- Speech Recognition (Web Speech API; iOS Safari does not support this, Chrome on iOS uses WebKit)
   let recognition = null;
@@ -692,7 +692,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (isOnBreak) return;  // ⬅️ don’t go to review during break
       const userText = (userAnswerText?.textContent || "").trim();
       // support multiple correct variants with "a|b|c" if you want
-      const correctRaw = currentCorrectAnswer; 
+      const correctRaw = currentCorrectAnswer;
       const verdict = evaluateAnswer(userText, correctRaw);
 
       if (verdict.kind === "auto-correct") {
@@ -726,7 +726,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function stopAnswerRecognition() {
-    try { recognition?.stop?.(); } catch {}
+    try { recognition?.stop?.(); } catch { }
     recognizing = false;
     if (silenceTimer) { clearInterval(silenceTimer); silenceTimer = null; }
   }
@@ -735,10 +735,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   function classifyYesNo(text) {
     if (!text) return null;
     const s = text.toLowerCase().trim();
-    const yesWords = ["yes","yeah","yep","yup","sure","correct","right","count it","mark it","that is correct","affirmative","ok","okay","aye"];
-    const noWords  = ["no","nope","nah","incorrect","wrong","don't","do not","not correct","that is wrong","negative"];
+    const yesWords = ["yes", "yeah", "yep", "yup", "sure", "correct", "right", "count it", "mark it", "that is correct", "affirmative", "ok", "okay", "aye"];
+    const noWords = ["no", "nope", "nah", "incorrect", "wrong", "don't", "do not", "not correct", "that is wrong", "negative"];
     if (yesWords.some(w => s.includes(w))) return "yes";
-    if (noWords.some(w => s.includes(w)))  return "no";
+    if (noWords.some(w => s.includes(w))) return "no";
     return null;
   }
 
@@ -757,18 +757,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       const done = (val) => { if (!settled) { settled = true; resolve(val); } };
 
       const timer = setTimeout(() => {
-        try { rec.stop(); } catch {}
+        try { rec.stop(); } catch { }
         done(null);
       }, windowMs);
 
       rec.onresult = (evt) => {
-        try { clearTimeout(timer); } catch {}
+        try { clearTimeout(timer); } catch { }
         const text = evt.results?.[0]?.[0]?.transcript || "";
         const ans = classifyYesNo(text);
         done(ans); // "yes" | "no" | null
       };
-      rec.onerror = () => { try { clearTimeout(timer); } catch {}; done(null); };
-      rec.onend = () => { try { clearTimeout(timer); } catch {}; done(null); };
+      rec.onerror = () => { try { clearTimeout(timer); } catch { }; done(null); };
+      rec.onend = () => { try { clearTimeout(timer); } catch { }; done(null); };
 
       try { rec.start(); } catch { done(null); }
     }).then(async (ans) => {
@@ -789,6 +789,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let correctCount = 0;
   let incorrectCount = 0;
   let sessionTotal = 0;
+  let currentSetName = "Untitled";
 
   function loadCurrentCard() {
     const c = cards[currentIdx] || {};
@@ -815,15 +816,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function setReviewOutcome(isCorrect) {
-  // just update counters — no TTS, no UI, no advancing here
-  if (isCorrect) correctCount++; else incorrectCount++;
+    // just update counters — no TTS, no UI, no advancing here
+    if (isCorrect) correctCount++; else incorrectCount++;
 
-  // Hide button so it doesn't remain visible
-  countCorrectBtn?.classList.add("hidden");
+    // Hide button so it doesn't remain visible
+    countCorrectBtn?.classList.add("hidden");
 
-  // Optionally update the outcome UI if you want,
-  // or leave it invisible since the Result screen is shown immediately
-}
+    // Optionally update the outcome UI if you want,
+    // or leave it invisible since the Result screen is shown immediately
+  }
 
 
   function nextCardOrFinish() {
@@ -837,11 +838,35 @@ document.addEventListener("DOMContentLoaded", async () => {
       const elapsedSecs = Math.floor((Date.now() - startTime) / 1000);
       const total = cards.length;
 
-      if (sumTime)  sumTime.textContent  = `Time: ${fmt(elapsedSecs)}`;
+      if (sumTime) sumTime.textContent = `Time: ${fmt(elapsedSecs)}`;
       if (sumRight) sumRight.textContent = `${correctCount} out of ${total}`;
       if (sumWrong) sumWrong.textContent = `${incorrectCount} out of ${total}`;
 
-      
+      // Save session stats to localStorage for stats page
+      try {
+        const STORAGE_KEY = "studySessions";
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        const sessions = Array.isArray(arr) ? arr : [];
+
+        sessions.push({
+          ts: Date.now(),
+          mode,                 // "normal" or "pomodoro" (already defined at top)
+          setId,
+          setName: currentSetName,
+          correct: correctCount,
+          incorrect: incorrectCount,
+          total,
+          durationSecs: elapsedSecs,
+        });
+
+        // Keep only the last 50 sessions to avoid infinite growth
+        const trimmed = sessions.slice(-50);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+      } catch (e) {
+        console.warn("Could not save study session stats:", e);
+      }
+
 
       showSummary();
 
@@ -854,7 +879,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewCorrectText.textContent = correctText || "(no correct answer)";
     showReview();
 
-    try { await ensureVoices?.(); } catch {}
+    try { await ensureVoices?.(); } catch { }
     await speakTextAndWait(`User Answer: ${reviewUserText.textContent}`);
     await speakTextAndWait(`Correct Answer: ${reviewCorrectText.textContent}`);
     await speakTextAndWait(`Count as correct?`);
@@ -892,9 +917,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   summaryTryBtn?.addEventListener("click", () => {
     // reload this study with same params
     const params = new URLSearchParams(location.search);
-    const setId  = params.get("id");
-    const mode   = (params.get("mode") || "normal").toLowerCase();
-    const idQS   = setId ? `?id=${encodeURIComponent(setId)}&mode=${encodeURIComponent(mode)}` : "";
+    const setId = params.get("id");
+    const mode = (params.get("mode") || "normal").toLowerCase();
+    const idQS = setId ? `?id=${encodeURIComponent(setId)}&mode=${encodeURIComponent(mode)}` : "";
     window.location.href = `study.html${idQS}`;
   });
 
@@ -912,8 +937,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch("/api/sets/mine", { headers: { "Accept": "application/json" } });
     const payload = await res.json();
     const got = Array.isArray(payload?.sets) ? payload.sets
-              : Array.isArray(payload)      ? payload
-              : [];
+      : Array.isArray(payload) ? payload
+        : [];
 
     if (!got.length) throw new Error("No sets available");
 
@@ -925,6 +950,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const count = Array.isArray(set.cards) ? set.cards.length : 0;
     titleEl.textContent = `${set.name || "Untitled"} | ${count} ${count === 1 ? "card" : "cards"}`;
+    currentSetName = set.name || "Untitled";
 
     // Color-coding based on mode
     if (mode === "normal") {
@@ -955,7 +981,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
 
           // Load voices list (safe on all)
-          try { await ensureVoices?.(); } catch {}
+          try { await ensureVoices?.(); } catch { }
 
           if (typeof startTimer === "function") startTimer();
 
@@ -965,7 +991,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             await runQuestionFlow();
           } else {
             // Non-iOS: mic permission prime is fine here
-            try { await primeMicPermission?.(); } catch {}
+            try { await primeMicPermission?.(); } catch { }
             await runQuestionFlow();
           }
         }, { once: true });
@@ -989,7 +1015,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (timerHandle) clearInterval(timerHandle);
     if (workTimeout) clearTimeout(workTimeout);
     if (breakInterval) clearInterval(breakInterval);
-    if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch {} }
+    if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch { } }
     stopAnswerRecognition();
   });
 
