@@ -349,26 +349,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Count it NOW so summary/break see the right numbers
     setReviewOutcome(isCorrect);           // your existing counter incrementer
 
-    // Speak the result (blocking), then move on
-    try {
-      const phrase = isCorrect
-        ? "Correct, well done!"
-        : "Incorrect, better luck next time!";
-      // re-use your TTS; if you have speakText()/speak() wrapper, use that:
-      await new Promise((resolve) => {
-        const u = new SpeechSynthesisUtterance(phrase);
-        u.onend = resolve; u.onerror = resolve;
-        window.speechSynthesis.speak(u);
-      });
-    } catch { }
+      // Speak the result (blocking), then move on
+      try {
+        const phrase = isCorrect
+          ? "Correct, well done!"
+          : "Incorrect, better luck next time!";
+        await speakTextAndWait(
+          phrase,
+          { lang: "en-US", rate: 0.95, pitch: 1.0 },
+          6000
+        );
+      } catch { }
+
 
     // Small pause so the UI feels responsive but not abrupt
     await new Promise(r => setTimeout(r, 250));
+
+    // If a Pomodoro break started while we were speaking, stay on break
+    if (isOnBreak) {
+      inCardTransition = false;
+      return;
+    }
 
     // Now continue as usual
     nextCardOrFinish();
     inCardTransition = false;
   }
+
 
 
 
@@ -453,43 +460,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  let quizVoice = null; // chosen TTS voice for the quiz
 
   // --- TTS helpers (reverted to the working pattern for your setup)
-  function speakQuestionAndWait(questionText, opts = { lang: "en-US", rate: 1.0, pitch: 1.0 }) {
-    return new Promise((resolve) => {
-      if (!("speechSynthesis" in window)) return resolve();
-      try {
-        const u = new SpeechSynthesisUtterance(`Question: ${questionText}`);
-        u.lang = opts.lang ?? "en-US";
-        u.volume = 1.0;
-        if (opts.rate) u.rate = opts.rate;
-        if (opts.pitch) u.pitch = opts.pitch;
+    function speakQuestionAndWait(
+      questionText,
+      opts = { lang: "en-US", rate: 0.9, pitch: 1.05 }
+    ) {
+      return new Promise((resolve) => {
+        if (!("speechSynthesis" in window)) return resolve();
+        try {
+          const u = new SpeechSynthesisUtterance(`Question: ${questionText}`);
+          u.lang = opts.lang ?? "en-US";
+          u.volume = 1.0;
+          if (opts.rate) u.rate = opts.rate;
+          if (opts.pitch) u.pitch = opts.pitch;
 
-        const voices = speechSynthesis.getVoices() || [];
-        const v = voices.find(v => v.lang?.startsWith(u.lang)) || voices[0];
-        if (v) u.voice = v;
+          const voices = speechSynthesis.getVoices() || [];
+          const v =
+            quizVoice ||
+            voices.find(v => v.lang && v.lang.startsWith(u.lang)) ||
+            voices[0];
+          if (v) u.voice = v;
 
-        u.onend = () => resolve();
-        u.onerror = () => resolve();
+          u.onend = () => resolve();
+          u.onerror = () => resolve();
 
-        // This combination worked for you post-HTTPS: cancel → speak, with a resume nudge
-        speechSynthesis.cancel();
-        speechSynthesis.speak(u);
+          speechSynthesis.cancel();
+          speechSynthesis.speak(u);
 
-        // mobile resume nudge loop (helps iOS/Android reliably start)
-        const t0 = Date.now();
-        const tick = () => {
-          if (!speechSynthesis.speaking && Date.now() - t0 < 1200) {
-            try { speechSynthesis.resume(); } catch { }
-            requestAnimationFrame(tick);
-          }
-        };
-        requestAnimationFrame(tick);
-      } catch {
-        resolve();
-      }
-    });
-  }
+          const t0 = Date.now();
+          const tick = () => {
+            if (!speechSynthesis.speaking && Date.now() - t0 < 1200) {
+              try { speechSynthesis.resume(); } catch { }
+              requestAnimationFrame(tick);
+            }
+          };
+          requestAnimationFrame(tick);
+        } catch {
+          resolve();
+        }
+      });
+    }
+
   function speakQuestionAndWaitWithTimeout(questionText, ms = 8000) {
     return Promise.race([
       speakQuestionAndWait(questionText),
@@ -497,45 +510,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     ]);
   }
 
-  function speakTextAndWait(text, opts = { lang: "en-US", rate: 1.0, pitch: 1.0 }, timeoutMs = 8000) {
-    return new Promise((resolve) => {
-      if (!("speechSynthesis" in window)) return resolve();
-      try {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = opts.lang ?? "en-US";
-        u.volume = 1.0;
-        if (opts.rate) u.rate = opts.rate;
-        if (opts.pitch) u.pitch = opts.pitch;
+    function speakTextAndWait(
+      text,
+      opts = { lang: "en-US", rate: 0.9, pitch: 1.05 },
+      timeoutMs = 8000
+    ) {
+      return new Promise((resolve) => {
+        if (!("speechSynthesis" in window)) return resolve();
+        try {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = opts.lang ?? "en-US";
+          u.volume = 1.0;
+          if (opts.rate) u.rate = opts.rate;
+          if (opts.pitch) u.pitch = opts.pitch;
 
-        const voices = speechSynthesis.getVoices() || [];
-        const v = voices.find(v => v.lang?.startsWith(u.lang)) || voices[0];
-        if (v) u.voice = v;
+          const voices = speechSynthesis.getVoices() || [];
+          const v =
+            quizVoice ||
+            voices.find(v => v.lang && v.lang.startsWith(u.lang)) ||
+            voices[0];
+          if (v) u.voice = v;
 
-        let settled = false;
-        const done = () => { if (!settled) { settled = true; resolve(); } };
+          let settled = false;
+          const done = () => { if (!settled) { settled = true; resolve(); } };
 
-        u.onend = done;
-        u.onerror = done;
+          u.onend = done;
+          u.onerror = done;
 
-        // Same pattern for reliability
-        speechSynthesis.cancel();
-        speechSynthesis.speak(u);
+          speechSynthesis.cancel();
+          speechSynthesis.speak(u);
 
-        const t0 = Date.now();
-        const tick = () => {
-          if (!speechSynthesis.speaking && Date.now() - t0 < 1200) {
-            try { speechSynthesis.resume(); } catch { }
-            requestAnimationFrame(tick);
-          }
-        };
-        requestAnimationFrame(tick);
+          const t0 = Date.now();
+          const tick = () => {
+            if (!speechSynthesis.speaking && Date.now() - t0 < 1200) {
+              try { speechSynthesis.resume(); } catch { }
+              requestAnimationFrame(tick);
+            }
+          };
+          requestAnimationFrame(tick);
 
-        setTimeout(done, timeoutMs);
-      } catch {
-        resolve();
-      }
-    });
-  }
+          setTimeout(done, timeoutMs);
+        } catch {
+          resolve();
+        }
+      });
+    }
+
 
   // Short audible primer we run on iOS during the Tap gesture
   async function speakAudibleOnce(line = "Audio enabled.") {
@@ -544,16 +564,70 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // --- Optional helpers
+    function pickQuizVoice() {
+    try {
+      const voices = speechSynthesis.getVoices() || [];
+      if (!voices.length) return;
+
+      const preferredNames = [
+        "Google US English",
+        "Google UK English Female",
+        "Samantha",
+        "Karen",
+        "Daniel"
+      ];
+
+      let chosen = null;
+
+      for (const name of preferredNames) {
+        const match = voices.find(v => v.name && v.name.includes(name));
+        if (match) {
+          chosen = match;
+          break;
+        }
+      }
+
+      if (!chosen) {
+        // fallback: any English voice, then first available
+        chosen = voices.find(v => v.lang && v.lang.startsWith("en")) || voices[0];
+      }
+
+      quizVoice = chosen;
+    } catch (e) {
+      console.warn("Could not select quiz voice:", e);
+    }
+  }
+
   async function ensureVoices() {
     return new Promise((resolve) => {
-      const have = () => (speechSynthesis.getVoices() || []).length > 0;
+      const have = () => ("speechSynthesis" in window) && (speechSynthesis.getVoices() || []).length > 0;
+
       if (!("speechSynthesis" in window)) return resolve();
-      if (have()) return resolve();
-      const on = () => { if (have()) { speechSynthesis.removeEventListener("voiceschanged", on); resolve(); } };
+      if (have()) {
+        pickQuizVoice();
+        return resolve();
+      }
+
+      const on = () => {
+        if (have()) {
+          speechSynthesis.removeEventListener("voiceschanged", on);
+          pickQuizVoice();
+          resolve();
+        }
+      };
+
       speechSynthesis.addEventListener("voiceschanged", on);
-      setTimeout(() => { if (have()) { speechSynthesis.removeEventListener("voiceschanged", on); resolve(); } }, 1000);
+
+      setTimeout(() => {
+        if (have()) {
+          speechSynthesis.removeEventListener("voiceschanged", on);
+          pickQuizVoice();
+        }
+        resolve();
+      }, 1000);
     });
   }
+
   async function primeMicPermission() {
     try {
       const stream = await navigator.mediaDevices?.getUserMedia?.({ audio: true });
@@ -799,6 +873,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function runQuestionFlow() {
+
+    if (isOnBreak) return;
     // Fresh UI for a new card (no TTS cancel here; helper handles it)
     resetAnswerUI();
     resetReviewUI();
@@ -828,6 +904,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
   function nextCardOrFinish() {
+
+    if (isOnBreak) return;
+
     stopAnswerRecognition(); // safety
     currentIdx++;
     if (currentIdx < cards.length) {

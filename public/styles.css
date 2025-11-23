@@ -1322,6 +1322,19 @@ button, .primary {
   margin: 2px 0 0;
 }
 
+#breakHomeBtn {
+  width: auto;
+  background: var(--green);
+  color: #000;
+  max-width: 240px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border-radius: 12px;
+  margin: 20px auto 0;
+  display: block;
+}
+
+
 /* === RESULT SCREEN === */
 .result-title {
   text-align: center;
