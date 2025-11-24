@@ -58,5 +58,39 @@
       }
     ],
     "createdAt": "2025-11-23T06:15:46.925Z"
+  },
+  {
+    "id": "1763956444481",
+    "owner": "a",
+    "name": "Animal",
+    "description": "Set of Animals in Spanish",
+    "cards": [
+      {
+        "q": "Dog",
+        "a": "Perro"
+      }
+    ],
+    "createdAt": "2025-11-24T03:54:04.481Z"
+  },
+  {
+    "id": "1763956660093",
+    "owner": "a",
+    "name": "Practice set",
+    "description": "Some questions to practice",
+    "cards": [
+      {
+        "q": "What is the powerhouse of the cell?",
+        "a": "Mitocondria"
+      },
+      {
+        "q": "What is the biggest organ?",
+        "a": "Skin"
+      },
+      {
+        "q": "What is leer in english?",
+        "a": "To read"
+      }
+    ],
+    "createdAt": "2025-11-24T03:57:40.093Z"
   }
 ]

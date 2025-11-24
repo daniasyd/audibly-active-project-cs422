@@ -977,10 +977,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  function handleSkip() {
+  if (recognition) {
+    try { recognition.stop(); } catch(e){}
+  }
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+
+  wrongCount++;
+  totalAnswered++;
+
+  showResultScreen(false); // false = incorrect
+
+  setTimeout(() => {
+    nextCard();
+  }, 1500);
+}
+
   // --- Button behaviors
-  skipBtn?.addEventListener("click", () => {
-    console.log("Skip pressed — will advance to next question later");
-    // OPTIONAL: implement skip behavior (e.g., mark incorrect and move on)
+  skipBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    handleSkip();
   });
 
   countCorrectBtn?.addEventListener("click", async () => {

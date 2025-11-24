@@ -601,8 +601,6 @@ button, .primary {
   margin-top: 10px;
 }
 
-
-
 /* === FINISH PAGE === */
 
 .finish-main {
@@ -681,8 +679,6 @@ button, .primary {
   transition: transform 0.15s ease, opacity 0.2s ease;
 }
 
-
-
 .finish-btn:hover { transform: scale(1.03); }
 .finish-btn:active { transform: scale(0.97); }
 
@@ -699,9 +695,6 @@ button, .primary {
   color: #000;
 }
 .green-btn:hover { opacity: 0.9; }
-
-
-
 
 
 /* === SETS PAGE — REPLACEMENT === */
@@ -1449,9 +1442,10 @@ button, .primary {
 /* Grid of stat cards */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 14px;
-  width: min(92vw, 520px);
+  grid-template-columns: 1fr 1fr; /* Forces exactly 2 columns */
+  gap: 12px;
+  width: min(92vw, 500px);        /* Keeps it from getting too wide */
+  margin: 0 auto;
 }
 
 /* Individual card */
@@ -1459,11 +1453,19 @@ button, .primary {
   background: #ffffff;
   border-radius: 14px;
   border: 1px solid var(--border);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  padding: 14px 16px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 16px;
+  
+  /* Flexbox to center content vertically and horizontally */
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
+  /* Optional: Ensure they are all the same height */
+  height: 100%; 
+  min-height: 120px;
 }
 
 .stats-card-label {
