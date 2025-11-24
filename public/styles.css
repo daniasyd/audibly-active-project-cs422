@@ -9,9 +9,9 @@
   --error: #f87171;
 
   /* New variables for easy theming */
-  --offwhite: #d6d6cf; /* soft off-white background */
-  --green: #55cc84;    /* neon-ish green for icons/active */
-  --light-blue: #9dd7f1;
+  --offwhite: #d9d9d9; /* soft off-white background */
+  --green: #07c15b;    /* neon-ish green for icons/active */
+  --light-blue: #74d7da;
 }
 
 * { box-sizing: border-box; }
@@ -877,6 +877,23 @@ button, .primary {
   font-weight: 800;
   color: var(--green); /* neon green from your theme */
   font-size: clamp(18px, 4.5vw, 22px);
+}
+
+.mode-description {
+  text-align: center;
+  color: var(--muted, #666666); /* Uses your muted variable, falls back to gray */
+  font-size: clamp(13px, 3vw, 15px);
+  font-weight: 500;
+  line-height: 1.4;
+  
+  /* Layout spacing */
+  margin-top: -4px;  /* Pulls it slightly closer to the title for better grouping */
+  margin-bottom: 16px; /* Pushes the buttons down so they aren't cramped */
+  padding: 0 8px;    /* Prevents text from hitting the very edges */
+  
+  /* text wrapping safety */
+  overflow-wrap: break-word; 
+  max-width: 100%;
 }
 
 .mode-buttons {

@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tpl = document.getElementById("qaTemplate");
   const finishBtn = document.querySelector(".finish-btn");
   const setNameEl = document.getElementById("setName");
+  const setDescEl = document.getElementById("setDesc");
 
   // Add new card
   addBtn.addEventListener("click", (e) => {
@@ -39,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const name = (setNameEl?.value || "").trim();
+    const description = (setDescEl?.value || "").trim();
     if (!name) {
       alert("Please enter a name for your set.");
       setNameEl?.focus();
@@ -58,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/sets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, cards })
+        body: JSON.stringify({ name, description, cards })
       });
       const data = await res.json();
       if (!res.ok || !data.ok) {

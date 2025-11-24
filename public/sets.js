@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const modeNormalBtn = document.getElementById("modeNormalBtn");
     const modePomodoroBtn = document.getElementById("modePomodoroBtn");
     const modeBackBtn = document.getElementById("modeBackBtn");
+    const modeDescription = document.getElementById("modeDescription");
 
     // Extra Pomodoro form elements
     const pomodoroForm     = document.getElementById("pomodoroForm");
@@ -47,6 +48,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     function openModeModal(setObj) {
     selectedSet = setObj || null;
     if (!modeOverlay) return;
+    if (modeDescription) {
+      modeDescription.textContent = setObj?.description || "";
+    }
     modeOverlay.classList.remove("hidden");
     modeOverlay.setAttribute("aria-hidden", "false");
     }

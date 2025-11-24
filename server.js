@@ -98,7 +98,7 @@ app.post("/api/logout", (req, res) => {
 // --- sets routes ---
 // save a set for the current user
 app.post("/api/sets", requireAuth, (req, res) => {
-  const { name, cards } = req.body || {};
+  const { name, description, cards } = req.body || {};
   if (!name || typeof name !== "string") {
     return res.status(400).json({ ok: false, message: "Set name required." });
   }
@@ -117,7 +117,7 @@ app.post("/api/sets", requireAuth, (req, res) => {
   const all = readSets();
   const id = Date.now().toString(); // simple id
   const owner = req.session.user.username;
-  const doc = { id, owner, name: name.trim(), cards: cleaned, createdAt: new Date().toISOString() };
+  const doc = { id, owner, name: name.trim(), description: (description || "").trim(), cards: cleaned, createdAt: new Date().toISOString() };
   all.push(doc);
   writeSets(all);
 
