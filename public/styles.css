@@ -909,10 +909,10 @@ button, .primary {
 .modal-btn:active { transform: translateY(0); }
 
 /* Colors to match your palette */
-.yellow-btn { background: #fdf7b4; border-color: #fdf7b4; color: #000; }
+.yellow-btn { background: #fcd24f; border-color: #fcd24f; color: #000; }
 .yellow-btn:hover { opacity: 0.92; }
 
-.green-btn  { background: #51aa66; border-color: #51aa66; color: #000; }
+.green-btn  { background: #07c15b; border-color: #07c15b; color: #000; }
 .green-btn:hover { opacity: 0.92; }
 
 .blue-btn   { background: var(--light-blue); border-color: var(--light-blue); color: #000; }
@@ -1184,10 +1184,10 @@ button, .primary {
 }
 
 .review-count-btn {
-  background: var(--light-blue, #b7dafc); 
+  background: var(--light-blue, #74d7da); 
   color: #000;
   font-weight: 700;
-  border: 1px solid var(--light-blue, #b7dafc);
+  border: 1px solid var(--light-blue, #74d7da);
   border-radius: 12px;
   padding: 10px 20px;
   box-shadow: 2px 2px 0 #00000020;
@@ -1210,7 +1210,15 @@ button, .primary {
 .outcome-bad  { color: #cc2b2b; }  
 
 
-
+.dark-btn {
+  background: #334155; /* Slate gray */
+  border: 1px solid #334155;
+  color: #fff;
+}
+.dark-btn:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
 
 /* === SUMMARY SCREEN === */
 .summary-title {

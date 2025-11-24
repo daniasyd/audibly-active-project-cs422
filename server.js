@@ -159,6 +159,39 @@ app.delete("/api/sets/:id", async (req, res) => {
   res.json({ ok: true, deletedId: removed.id });
 });
 
+// UPDATE /api/sets/:id -> Updates an existing set
+app.put("/api/sets/:id", requireAuth, (req, res) => {
+  const { id } = req.params;
+  const { name, description, cards } = req.body;
+  
+  if (!id) return res.status(400).json({ ok: false, message: "Missing set ID" });
+
+  const all = readSets();
+  const idx = all.findIndex(s => String(s.id) === String(id));
+
+  if (idx === -1) {
+    return res.status(404).json({ ok: false, message: "Set not found" });
+  }
+
+  // Check ownership (optional safety)
+  if (all[idx].owner !== req.session.user.username) {
+     return res.status(403).json({ ok: false, message: "Not your set" });
+  }
+
+  // Update fields
+  const cleanedCards = (cards || [])
+    .map(c => ({ q: (c?.q ?? "").trim(), a: (c?.a ?? "").trim() }))
+    .filter(c => c.q || c.a);
+
+  all[idx].name = (name || "").trim();
+  all[idx].description = (description || "").trim();
+  all[idx].cards = cleanedCards;
+  // Keep original owner and createdAt, maybe update "updatedAt"
+  all[idx].updatedAt = new Date().toISOString();
+
+  writeSets(all);
+  return res.json({ ok: true });
+});
 
 // start
 app.listen(PORT, "0.0.0.0", () => {

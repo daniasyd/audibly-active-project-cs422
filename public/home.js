@@ -4,9 +4,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Modal elements (same IDs/classes as sets.html so CSS matches)
   const modeOverlay = document.getElementById("modeOverlay");
+  const modeDescription = document.getElementById("modeDescription");
   const modeNormalBtn = document.getElementById("modeNormalBtn");
   const modePomodoroBtn = document.getElementById("modePomodoroBtn");
   const modeBackBtn = document.getElementById("modeBackBtn");
+  const modeEditBtn = document.getElementById("modeEditBtn");
 
   const pomodoroInfoBtn = document.getElementById("pomodoroInfoBtn");
   const pomodoroInfoModal = document.getElementById("pomodoroInfoModal");
@@ -28,6 +30,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   function openModeModal(setObj) {
     latestSet = setObj || null;
     if (!modeOverlay) return;
+    if (modeDescription) {
+       modeDescription.textContent = setObj?.description || "";
+    }
     // ensure we start at the choice row, not the form
     pomodoroForm?.classList.add("hidden");
     modeButtonsRow?.classList.remove("hidden");
@@ -82,6 +87,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const work = Math.max(1, Math.min(180, parseInt(workMinutesInput?.value || "25", 10) || 25));
     const rest = Math.max(1, Math.min(120, parseInt(restMinutesInput?.value || "5", 10) || 5));
     window.location.href = `study.html?id=${id}&mode=pomodoro&work=${work}&rest=${rest}`;
+  });
+
+  modeEditBtn?.addEventListener("click", () => {
+      if (!latestSet) return;
+      // Get the ID (handles both string ID or database _id)
+      const id = latestSet.id || latestSet._id;
+      
+      // Redirect to create.html with the ?edit=ID query parameter
+      window.location.href = `create.html?edit=${encodeURIComponent(id)}`;
   });
 
   modeBackBtn?.addEventListener("click", () => closeModeModal());

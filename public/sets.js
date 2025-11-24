@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const restMinutesInput = document.getElementById("restMinutes");
     const pomodoroStartBtn = document.getElementById("pomodoroStartBtn");
     const pomodoroBackBtn  = document.getElementById("pomodoroBackBtn");
+    const modeEditBtn = document.getElementById("modeEditBtn");
 
     // The original 3 buttons container (so we can hide/show it)
     // If your three buttons are the only children inside .mode-modal,
@@ -104,6 +105,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       modeButtonsRow?.classList.remove("hidden");
     });
 
+    modeEditBtn?.addEventListener("click", () => {
+      if (!selectedSet) return;
+      // Get the ID (handles both string ID or database _id)
+      const id = selectedSet.id || selectedSet._id;
+      
+      // Redirect to create.html with the ?edit=ID query parameter
+      window.location.href = `create.html?edit=${encodeURIComponent(id)}`;
+    });
+    
     if (modeBackBtn) {
     modeBackBtn.addEventListener("click", () => closeModeModal());
     }
