@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const getStyleForIndex = (i) => {
     const styles = [
       // 1. Green (Needs White Text)
-      { bg: '#22a454', text: '#000000ff' }, 
+      { bg: '#07c15b', text: '#000000ff' }, 
       // 2. Cyan (Needs Black Text)
       { bg: '#74d7da', text: '#000000' }, 
       // 3. Yellow (Needs Black Text)

@@ -369,8 +369,6 @@ button, .primary {
   -moz-appearance: none;
 }
 
-
-
 .main-btn:hover { transform: translateY(-1px); }
 .main-btn:active { transform: translateY(0); }
 
@@ -379,7 +377,7 @@ button, .primary {
   background-color: #07c15b;
 }
 .create-btn:hover {
-  background-color: #035a2a;
+  background-color: #189550;
 }
 
 .study-btn {
@@ -396,8 +394,13 @@ button, .primary {
   background-color: #4dced3;
 }
 
-.recent-btn { background-color: #a3bce9; color: #333; }
+.recent-btn { 
+  background-color: #74d7da; 
+}
 
+.recent-btn:hover {
+  background-color: #4dced3;
+}
 
 /* === CREATE PAGE === */
 
@@ -732,7 +735,9 @@ button, .primary {
 /* Headings: left-aligned inside a centered main */
 .sets-title,
 .sets-subtitle {
-  align-self: flex-start;
+  align-self: center;       /* Centers the invisible box in the flex column */
+  text-align: center;       /* Centers the text inside the box */
+  width: 100%;              /* Ensures the text has room to center */
   color: #000;
 }
 .sets-title {
@@ -792,7 +797,6 @@ button, .primary {
   cursor: default;
 }
 
-/* ✅ Bottom row lives in normal flow, so nothing can be under it */
 .fab-row {
   margin-top: auto;                        
   width: 100%;
@@ -887,7 +891,7 @@ button, .primary {
   margin: 0 0 12px;
   text-align: center;
   font-weight: 800;
-  color: var(--green); /* neon green from your theme */
+  color: var(--bg); /* neon green from your theme */
   font-size: clamp(18px, 4.5vw, 22px);
 }
 
@@ -1437,81 +1441,110 @@ button, .primary {
 
 /* === STATS PAGE === */
 
+/* === STATS PAGE === */
+
 .stats-main {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; /* Centers the whole column layout */
   padding: 24px 16px;
   gap: 20px;
   width: 100%;
 }
 
+/* 1. Center ONLY the Headers */
 .stats-header {
-  text-align: center;
-  max-width: 420px;
+  text-align: center;      /* Forces the "Your Stats" text to center */
+  width: 100%;
+  max-width: 500px;
 }
 
 .stats-title {
   margin: 0 0 4px;
   font-weight: 800;
   font-size: clamp(22px, 5vw, 30px);
-  color: #000;
+  color: #000;             /* Title stays dark */
 }
 
+/* Revert Subtitle to Grey */
 .stats-subtitle {
   margin: 0;
   font-size: clamp(14px, 3.5vw, 16px);
-  color: #444;
+  font-weight: 700;
+  color: #444;             /* <<< Grey */
 }
 
-/* Grid of stat cards */
+/* 2. Smaller Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Forces exactly 2 columns */
-  gap: 12px;
-  width: min(92vw, 500px);        /* Keeps it from getting too wide */
+  grid-template-columns: 1fr 1fr; 
+  gap: 10px;
+  width: min(90vw, 400px); /* Small width */
   margin: 0 auto;
 }
 
-/* Individual card */
+/* 3. Card Styling */
 .stats-card {
   background: #ffffff;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid var(--color-border);
+  padding: 10px;
+  min-height: 90px;
   
-  /* Flexbox to center content vertically and horizontally */
+  /* Internal alignment */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  
-  /* Optional: Ensure they are all the same height */
-  height: 100%; 
-  min-height: 120px;
 }
 
+/* Revert Card Text to Grey */
 .stats-card-label {
   margin: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #555;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #555;             /* <<< Grey */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* Big Stats Numbers */
 .stats-card-value {
-  margin: 0;
+  margin: 4px 0;
   font-weight: 800;
-  font-size: clamp(22px, 5vw, 28px);
-  color: #111;
+  font-size: 1.6rem;
+  
+  /* CHANGE THIS LINE */
+  color: #07c15b;   
 }
 
 .stats-card-caption {
   margin: 0;
-  font-size: 0.8rem;
-  color: #777;
+  font-size: 0.75rem;
+  color: #777;             /* <<< Grey */
+}
+
+/* Section Headers (like "Pomodoro Usage", "Recent Sessions") */
+.stats-section h2 {
+  text-align: center;      /* Center these headers */
+  color: #000;
+  margin-bottom: 10px;
+}
+
+/* Normal Text (Left Aligned & Grey) */
+.stats-text {
+  color: #444;             /* <<< Grey */
+  font-size: 1rem;
+  text-align: left;        /* Not centered */
+}
+
+.stats-list {
+  list-style: none;
+  padding: 0;
+  color: #444;             /* <<< Grey */
+  text-align: left;        /* Not centered */
 }
 
 /* Optional accent on first card */
