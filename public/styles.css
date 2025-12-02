@@ -336,7 +336,10 @@ button, .primary {
 }
 
 .recent-label {
-  width: 100%;
+  width: 100%;           /* Ensures the box spans the full width */
+  text-align: center;    /* <--- ADD THIS LINE to center the text */
+  
+  /* Keep your existing styles below */
   font-weight: 600;
   font-size: clamp(14px, 2.8vw, 18px);
   margin-bottom: 2px;
