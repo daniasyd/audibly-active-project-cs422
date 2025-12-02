@@ -376,24 +376,24 @@ button, .primary {
 
 /* Specific color styles */
 .create-btn {
-  background-color: #b7f5b3;
+  background-color: #07c15b;
 }
 .create-btn:hover {
-  background-color: #a3e79f;
+  background-color: #035a2a;
 }
 
 .study-btn {
-  background-color:  #fdf7b4;
+  background-color:  #fcd24f;
 }
 .study-btn:hover {
-  background-color: #f9f08e;
+  background-color: #f9c320;
 }
 
 .progress-btn {
-  background-color: #f9c6d2;
+  background-color: #74d7da;
 }
 .progress-btn:hover {
-  background-color: #f5a9b9;
+  background-color: #4dced3;
 }
 
 .recent-btn { background-color: #a3bce9; color: #333; }
@@ -434,22 +434,32 @@ button, .primary {
   color: #000;
 }
 
-/* Light blue input box */
-.set-name-input {
-  background-color: var(--light-blue);
-  border: 1px solid var(--light-blue);
+/* Name & Description Inputs */
+.set-name-input, #setDesc {
+  /* --- CHANGE COLORS HERE --- */
+  background-color: #ffffff;               /* White background */
+  border: 2px solid var(--color-btn-cyan); /* Cyan border */
+  color: #000000;                          /* Black text */
+  /* -------------------------- */
+
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 1rem;
-  color: #000;
-  width: min(60vw, 250px);
+  width: min(60vw, 300px);     /* Keeps them from getting too wide */
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;        /* Ensures the font matches the app */
 }
 
-.set-name-input:focus {
+/* Focus State (When you click inside) */
+.set-name-input:focus, #setDesc:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  border-color: var(--color-brand-neon); /* Glows Neon Green when typing */
+  box-shadow: 0 0 8px rgba(7, 193, 91, 0.2);
+}
+
+/* Placeholder Text (e.g., "Enter set name...") */
+.set-name-input::placeholder, #setDesc::placeholder {
+  color: #999999;
 }
 
 /* === CREATE PAGE: Question & Answer Section === */
@@ -491,12 +501,17 @@ button, .primary {
   align-items: center;
   width: min(90vw, 500px);
   margin: 0 auto;
-  background-color: var(--light-blue);
-  border: 1px solid var(--light-blue);
+  
+  /* --- CHANGE COLORS HERE --- */
+  background-color: #ffffff;        /* White background (instead of Blue) */
+  border: 2px solid var(--color-btn-cyan); /* Cyan border to match theme */
+  /* -------------------------- */
+  
   border-radius: 10px;
   padding: 8px;                 
   column-gap: 10px;
-  box-sizing: border-box;      
+  box-sizing: border-box; 
+  margin-top: 10px; /* Space between rows */
 }
 
 /* Inputs: equal width, no borders fighting the blue container */
@@ -506,9 +521,13 @@ button, .primary {
   border: none;
   outline: none;
   font-size: 1rem;
-  color: #000;
   padding: 6px 8px;
-  min-width: 0;                
+  min-width: 0;
+  
+  /* --- FIXING THE GREY FONT --- */
+  color: #000000;  /* Forces text to be BLACK */
+  font-weight: 500;
+  /* --------------------------- */
 }
 
 /* The colon sits in its own auto column */
@@ -1022,8 +1041,8 @@ button, .primary {
 
 /* === Study Set title color variants === */
 .study-setbox-yellow {
-  background: #fdf7b4;          
-  border: 2px solid #fdf7b4;
+  background: #fcd24f;          
+  /*border: 2px solid #fcd24f;*/
   box-shadow: 2px 2px 0 #00000030;
 }
 
@@ -1135,7 +1154,7 @@ button, .primary {
 }
 
 .answer-skip-btn {
-  background: #51aa66; 
+  background: #07c15b; 
   color: #fff;
   font-weight: 700;
   border: none;

@@ -8,22 +8,18 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="page-home">
+
   <header class="top-bar">
-    <header class="top-bar">
+    
     <div class="profile-container">
-      <button class="profile-btn">
-        <img src="assets/user.png" alt="User icon" class="profile-icon" />
+      <button class="profile-btn" aria-label="User Menu">
+        <img src="assets/user.png" alt="User" class="profile-icon" />
       </button>
 
       <div id="profileMenu" class="profile-menu hidden">
         <button id="logoutBtn" class="logout-button">Log Out</button>
       </div>
     </div>
-
-  <nav class="icon-bar">
-    <!-- existing home / sets / stats icons -->
-  </nav>
-</header>
 
     <nav class="icon-bar">
       <a class="icon-button" href="home.html" aria-label="Home">
@@ -38,99 +34,85 @@
     </nav>
   </header>
 
-  
   <main class="sets-main">
-    <!-- Recent section -->
     <h2 class="sets-title">Recent</h2>
     <button id="recentSetBtn" class="set-btn" disabled>Loading…</button>
 
-    <!-- All sets section -->
     <h3 class="sets-subtitle">All Sets:</h3>
+    
     <div id="allSets" class="sets-list">
-      <!-- buttons will be injected here -->
       <p id="allSetsEmpty" class="empty-text">Loading…</p>
     </div>
-    <!-- Sticky bottom row so content never sits underneath -->
-    <div class="fab-row" aria-hidden="false">
+
+    <div class="fab-row">
       <button id="addSetBtn" class="fab-btn" aria-label="Create New Set">
         <i data-lucide="plus" class="fab-plus-icon"></i>
       </button>
     </div>
-
   </main>
 
-    <!-- Study Mode Modal -->
-<div id="modeOverlay" class="mode-overlay hidden" aria-hidden="true">
-  <div class="mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
-    <h2 id="modeTitle" class="mode-title">Start Studying</h2>
-    <p id="modeDescription" class="mode-description">
-       </p>
-    <div class="mode-buttons">
-      <button id="modeNormalBtn" class="modal-btn yellow-btn" type="button">Normal</button>
-    
-      <button id="modePomodoroBtn" class="modal-btn green-btn pomodoro-btn" type="button">
-        Pomodoro
-        <span id="pomodoroInfoBtn" class="mode-info-icon" aria-label="What is Pomodoro?">
-          <i data-lucide="info"></i>
-        </span>
-      </button>
+  <div id="modeOverlay" class="mode-overlay hidden" aria-hidden="true">
+    <div class="mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
+      <h2 id="modeTitle" class="mode-title">Start Studying</h2>
+      <p id="modeDescription" class="mode-description"></p>
       
-      <button id="modeEditBtn" class="modal-btn yellow-btn" type="button">Edit Set</button>
+      <div class="mode-buttons">
+        <button id="modeNormalBtn" class="modal-btn yellow-btn" type="button">Normal</button>
+      
+        <button id="modePomodoroBtn" class="modal-btn green-btn pomodoro-btn" type="button">
+          Pomodoro
+          <span id="pomodoroInfoBtn" class="mode-info-icon" aria-label="What is Pomodoro?">
+            <i data-lucide="info" style="width:16px; height:16px;"></i>
+          </span>
+        </button>
+        
+        <button id="modeEditBtn" class="modal-btn yellow-btn" type="button">Edit Set</button>
 
-      <button id="modeBackBtn" class="modal-btn blue-btn" type="button">Back</button>
-    </div>
-
-    <!-- Pomodoro form (hidden by default) -->
-    <div id="pomodoroForm" class="hidden">
-      <div class="mode-title" style="margin-top:10px">Pomodoro Settings</div>
-      <div class="pomodoro-grid">
-        <label class="pomodoro-label">
-          Study (minutes)
-          <input id="workMinutes" class="pomodoro-input" type="number" min="1" max="180" step="1" value="25">
-        </label>
-        <label class="pomodoro-label">
-          Rest (minutes)
-          <input id="restMinutes" class="pomodoro-input" type="number" min="1" max="120" step="1" value="5">
-        </label>
+        <button id="modeBackBtn" class="modal-btn blue-btn" type="button">Back</button>
       </div>
 
-      <div class="mode-buttons" style="margin-top:10px">
-        <button id="pomodoroStartBtn" class="modal-btn green-btn" type="button">Start</button>
-        <button id="pomodoroBackBtn"  class="modal-btn blue-btn"  type="button">Back</button>
+      <div id="pomodoroForm" class="hidden">
+        <div class="mode-title" style="margin-top:10px; font-size:1.2rem;">Pomodoro Settings</div>
+        <div class="pomodoro-grid">
+          <label class="pomodoro-label">
+            Study (min)
+            <input id="workMinutes" class="pomodoro-input" type="number" min="1" max="180" value="25">
+          </label>
+          <label class="pomodoro-label">
+            Rest (min)
+            <input id="restMinutes" class="pomodoro-input" type="number" min="1" max="120" value="5">
+          </label>
+        </div>
+
+        <div class="mode-buttons" style="margin-top:15px">
+          <button id="pomodoroStartBtn" class="modal-btn green-btn" type="button">Start</button>
+          <button id="pomodoroBackBtn"  class="modal-btn blue-btn"  type="button">Back</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Pomodoro info modal (moved outside the mode overlay) -->
-<div
-  id="pomodoroInfoModal"
-  class="audio-gate hidden"
-  aria-hidden="true"
-  role="dialog"
->
-  <div class="audio-gate-box">
-    <h2 class="audio-gate-title">What is Pomodoro?</h2>
-    <p class="audio-gate-text">
-      Pomodoro is a focus technique where you study in short, timed blocks
-      (for example 25 minutes), followed by a short break (for example 5 minutes).
-    </p>
-    <p class="audio-gate-text">
-      In Pomodoro mode, this app will:
-    </p>
-    <ul class="audio-gate-text">
-      <li>Start a study timer for your work block.</li>
-      <li>Automatically switch to a break when time is up.</li>
-      <li>Show how many cards you recalled during the work block.</li>
-    </ul>
-
-    <button id="pomodoroInfoClose" class="modal-btn green-btn" type="button">
-      Got it
-    </button>
+  <div id="pomodoroInfoModal" class="audio-gate hidden" aria-hidden="true" role="dialog">
+    <div class="audio-gate-box">
+      <h2 class="audio-gate-title">What is Pomodoro?</h2>
+      <p class="audio-gate-text">
+        Pomodoro is a focus technique where you study in short, timed blocks (e.g., 25 min), followed by a short break.
+      </p>
+      <ul class="audio-gate-text" style="text-align:left; margin:10px auto; max-width:80%;">
+        <li>Start a study timer.</li>
+        <li>Auto-switch to break mode.</li>
+        <li>Track recall progress.</li>
+      </ul>
+      <button id="pomodoroInfoClose" class="modal-btn green-btn" type="button">Got it</button>
+    </div>
   </div>
-</div>
 
-<script src="sets.js" defer></script>
-<script>lucide.createIcons();</script>
+  <script src="sets.js" defer></script>
+  <script>
+    // Initialize icons immediately
+    window.addEventListener('load', () => {
+      if(window.lucide) lucide.createIcons();
+    });
+  </script>
 </body>
 </html>

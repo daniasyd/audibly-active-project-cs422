@@ -146,25 +146,37 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-
+  
   // ---- small helpers (consistent color + id getter) ----
   
-  const colorForIndex = (i) => {
-    const hue = (i * 37) % 360;   // spread nicely around the wheel
-    const sat = 70;
-    const light = 78;             // pastel tone
-    return `hsl(${hue} ${sat}% ${light}%)`;
+  // Returns an object with the background color AND the correct text color
+  const getStyleForIndex = (i) => {
+    const styles = [
+      // 1. Green (Needs White Text)
+      { bg: '#22a454', text: '#000000ff' }, 
+      // 2. Cyan (Needs Black Text)
+      { bg: '#74d7da', text: '#000000' }, 
+      // 3. Yellow (Needs Black Text)
+      { bg: '#fcd24f', text: '#000000' }
+    ];
+    
+    // Cycle through the styles: 0, 1, 2, 0, 1, 2...
+    return styles[i % styles.length];
   };
 
-  const applyColor = (el, hsl) => {
+  const applyColor = (el, i) => {
     if (!el) return;
-    el.style.backgroundColor = hsl;
-    el.style.borderColor = hsl;
-    el.style.color = "#000";
+    
+    // Get the style object based on the index
+    const style = getStyleForIndex(i);
+    
+    el.style.backgroundColor = style.bg;
+    el.style.borderColor = style.bg;
+    el.style.color = style.text; // Ensures text is readable
   };
 
   const getSetId = (s) => s?.id ?? s?._id ?? s?.slug ?? null;
-
+  
   const refreshIcons = () => {
     if (window.lucide && typeof window.lucide.createIcons === "function") {
       window.lucide.createIcons();
@@ -198,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     recentBtn.onclick = () => {
       openModeModal(latest);
     };
-    applyColor(recentBtn, colorForIndex(0));
+    applyColor(recentBtn, 0); // Pass the index '0' directly
   };
 
   // ---- Render list with right-side trash buttons ----
@@ -222,7 +234,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const btn = document.createElement("button");
       btn.className = "set-btn";
       btn.textContent = `${s.name || "Untitled"} | ${count} ${count === 1 ? "card" : "cards"}`;
-      applyColor(btn, colorForIndex(idx + 1)); // keep recent distinct as index 0
+      applyColor(btn, idx + 1); // Pass the index 'idx + 1' directly
       btn.addEventListener("click", () => {
         openModeModal(s);
       });
