@@ -45,13 +45,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     function openModeModal(setObj) {
-    selectedSet = setObj || null;
-    if (!modeOverlay) return;
-    if (modeDescription) {
-      modeDescription.textContent = setObj?.description || "";
-    }
-    modeOverlay.classList.remove("hidden");
-    modeOverlay.setAttribute("aria-hidden", "false");
+      selectedSet = setObj || null;
+      if (!modeOverlay) return;
+
+      // === ADD THIS SECTION ===
+      const titleEl = document.getElementById("modeTitle");
+      if (titleEl) {
+          // Change "Start Studying" to the actual Set Name
+          titleEl.textContent = setObj.name || "Untitled Set";
+      }
+      // ========================
+
+      if (modeDescription) {
+          // If there is no description, show a placeholder or keep it empty
+          modeDescription.textContent = setObj?.description || "No description provided.";
+      }
+
+      modeOverlay.classList.remove("hidden");
+      modeOverlay.setAttribute("aria-hidden", "false");
     }
 
     function closeModeModal() {
@@ -291,6 +302,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     refreshIcons();
   };
 
+  
+
   // ---- Fetch and initial render ----
   try {
     const res = await fetch("/api/sets/mine", { headers: { "Accept": "application/json" } });
@@ -327,6 +340,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // All sets
     renderAllSets(sorted);
+
+    const params = new URLSearchParams(window.location.search);
+    
+    // If the URL has ?auto=true AND we have sets loaded
+    if (params.get("auto") === "true" && sorted.length > 0) {
+      
+      // The newest set is always sorted[0]
+      const newestSet = sorted[0];
+      
+      // Open the study modal for it immediately
+      openModeModal(newestSet);
+      
+      // Optional: Remove "?auto=true" from the URL so it doesn't pop up if you refresh
+      window.history.replaceState({}, document.title, "sets.html");
+    }
+    
   } catch (err) {
     console.error(err);
     if (recentBtn) {

@@ -75,7 +75,7 @@
       }
     ],
     "createdAt": "2025-11-24T03:54:04.481Z",
-    "updatedAt": "2025-12-02T01:53:11.797Z"
+    "updatedAt": "2025-12-02T17:36:50.032Z"
   },
   {
     "id": "1763956660093",
@@ -97,13 +97,13 @@
       }
     ],
     "createdAt": "2025-11-24T03:57:40.093Z",
-    "updatedAt": "2025-12-02T05:38:06.278Z"
+    "updatedAt": "2025-12-02T17:45:42.331Z"
   },
   {
     "id": "1764652194674",
     "owner": "a",
     "name": "Practice set",
-    "description": "Some questions to practice",
+    "description": "Biology 101 Flashcard set",
     "cards": [
       {
         "q": "What is the powerhouse of the cell?",
@@ -114,6 +114,7 @@
         "a": "Skin"
       }
     ],
-    "createdAt": "2025-12-02T05:09:54.674Z"
+    "createdAt": "2025-12-02T05:09:54.674Z",
+    "updatedAt": "2025-12-02T17:47:37.588Z"
   }
 ]

@@ -10,5 +10,9 @@
   {
     "username": "d",
     "passwordHash": "$2a$10$vwlBv5bvyWj1tf/Tjj7W.eH3X6MdtjGSOV63zCmqdsalkvqIIcswK"
+  },
+  {
+    "username": "b",
+    "passwordHash": "$2a$10$k39qkToSRCp7DyKR0yATJeKbVMYsKMcytewTEUpbPOrVOtnzq4E5q"
   }
 ]

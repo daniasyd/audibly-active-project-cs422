@@ -900,10 +900,11 @@ button, .primary {
 
 .mode-description {
   text-align: center;
-  color: var(--muted, #666666); /* Uses your muted variable, falls back to gray */
-  font-size: clamp(13px, 3vw, 15px);
-  font-weight: 500;
-  line-height: 1.4;
+  
+  color: #000000;       
+  font-weight: 600;     
+  font-size: 1rem;     
+  
   
   /* Layout spacing */
   margin-top: -4px;  /* Pulls it slightly closer to the title for better grouping */

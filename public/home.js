@@ -28,18 +28,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   let latestSet = null;
 
   function openModeModal(setObj) {
-    latestSet = setObj || null;
+    selectedSet = setObj || null;
     if (!modeOverlay) return;
-    if (modeDescription) {
-       modeDescription.textContent = setObj?.description || "";
+
+    // === ADD THIS SECTION ===
+    const titleEl = document.getElementById("modeTitle");
+    if (titleEl) {
+        // Change "Start Studying" to the actual Set Name
+        titleEl.textContent = setObj.name || "Untitled Set";
     }
-    // ensure we start at the choice row, not the form
-    pomodoroForm?.classList.add("hidden");
-    modeButtonsRow?.classList.remove("hidden");
+    // ========================
+
+    if (modeDescription) {
+        // If there is no description, show a placeholder or keep it empty
+        modeDescription.textContent = setObj?.description || "No description provided.";
+    }
 
     modeOverlay.classList.remove("hidden");
     modeOverlay.setAttribute("aria-hidden", "false");
-  }
+}
 
   function closeModeModal() {
     if (!modeOverlay) return;
