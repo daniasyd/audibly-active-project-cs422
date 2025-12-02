@@ -42,6 +42,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const workMins = Math.max(1, parseInt(params.get("work") || "25", 10));
   const restMins = Math.max(1, parseInt(params.get("rest") || "5", 10));
   const isPomodoro = mode === "pomodoro";
+  const reviewFlag = (params.get("review") || "").toLowerCase();
+
 
 
   // --- iOS detection
@@ -864,6 +866,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let incorrectCount = 0;
   let sessionTotal = 0;
   let currentSetName = "Untitled";
+  let wrongCards = [];
 
   function loadCurrentCard() {
     const c = cards[currentIdx] || {};
@@ -892,28 +895,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function setReviewOutcome(isCorrect) {
-    // just update counters — no TTS, no UI, no advancing here
-    if (isCorrect) correctCount++; else incorrectCount++;
+    if (isCorrect) {
+      correctCount++;
+    } else {
+      incorrectCount++;
+      if (cards[currentIdx]) {
+        wrongCards.push(cards[currentIdx]);
+      }
+    }
 
-    // Hide button so it doesn't remain visible
     countCorrectBtn?.classList.add("hidden");
-
-    // Optionally update the outcome UI if you want,
-    // or leave it invisible since the Result screen is shown immediately
   }
-
 
   function nextCardOrFinish() {
 
     if (isOnBreak) return;
 
-    stopAnswerRecognition(); // safety
+    stopAnswerRecognition(); 
     currentIdx++;
     if (currentIdx < cards.length) {
       setTimeout(() => { runQuestionFlow(); }, 400);
     } else {
-      // sumCorrect.textContent = String(correctCount);
-      // sumIncorrect.textContent = String(incorrectCount);
       const elapsedSecs = Math.floor((Date.now() - startTime) / 1000);
       const total = cards.length;
 
@@ -921,7 +923,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (sumRight) sumRight.textContent = `${correctCount} out of ${total}`;
       if (sumWrong) sumWrong.textContent = `${incorrectCount} out of ${total}`;
 
-      // Save session stats to localStorage for stats page
       try {
         const STORAGE_KEY = "studySessions";
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -930,7 +931,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         sessions.push({
           ts: Date.now(),
-          mode,                 // "normal" or "pomodoro" (already defined at top)
+          mode,
           setId,
           setName: currentSetName,
           correct: correctCount,
@@ -939,13 +940,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           durationSecs: elapsedSecs,
         });
 
-        // Keep only the last 50 sessions to avoid infinite growth
         const trimmed = sessions.slice(-50);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
       } catch (e) {
         console.warn("Could not save study session stats:", e);
       }
 
+      try {
+        sessionStorage.setItem("wrongCards", JSON.stringify(wrongCards));
+      } catch (e) {
+        console.warn("Could not save wrong cards:", e);
+      }
 
       showSummary();
 
@@ -1056,8 +1061,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       titleEl.classList.add("study-setbox-green");
     }
 
-    cards = Array.isArray(set.cards) ? set.cards : [];
-    sessionTotal = cards.length;   // <= capture total once, never 0 later
+        let fullCards = Array.isArray(set.cards) ? set.cards : [];
+
+    // If we're in review-wrong mode, load only wrong cards
+    if (reviewFlag === "wrong") {
+      try {
+        const stored = sessionStorage.getItem("wrongCards");
+        const wrong = stored ? JSON.parse(stored) : [];
+        if (Array.isArray(wrong) && wrong.length) {
+          cards = wrong;
+        } else {
+          // fallback if nothing there
+          cards = fullCards;
+        }
+      } catch {
+        cards = fullCards;
+      }
+    } else {
+      cards = fullCards;
+    }
+
+    sessionTotal = cards.length;
     if (!cards.length) {
       titleEl.textContent = `${set.name || "Untitled"} | 0 cards`;
       return;
@@ -1116,4 +1140,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     stopAnswerRecognition();
   });
 
+    const reviewWrongBtn = document.getElementById("reviewWrongBtn");
+
+  if (reviewWrongBtn) {
+    reviewWrongBtn.addEventListener("click", () => {
+      const stored = sessionStorage.getItem("wrongCards");
+      const wrong = stored ? JSON.parse(stored) : [];
+
+      if (!wrong.length) {
+        alert("You don't have any incorrect cards to review yet.");
+        return;
+      }
+
+      const params = new URLSearchParams(location.search);
+      const idParam = params.get("id");
+      const modeParam = params.get("mode") || "normal";
+
+      const nextParams = new URLSearchParams();
+      if (idParam) nextParams.set("id", idParam);
+      if (modeParam) nextParams.set("mode", modeParam);
+      nextParams.set("review", "wrong");
+
+      window.location.href = `study.html?${nextParams.toString()}`;
+    });
+  }
 });

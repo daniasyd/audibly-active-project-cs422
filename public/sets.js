@@ -34,12 +34,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const pomodoroBackBtn  = document.getElementById("pomodoroBackBtn");
     const modeEditBtn = document.getElementById("modeEditBtn");
 
-    // The original 3 buttons container (so we can hide/show it)
-    // If your three buttons are the only children inside .mode-modal,
-    // just grab the container that wraps them. Here we target by IDs:
+  
     const modeButtonsRow = document.querySelector(".mode-buttons");
 
-      // Pomodoro info elements
+    // Pomodoro info elements
     const pomodoroInfoBtn   = document.getElementById("pomodoroInfoBtn");
     const pomodoroInfoModal = document.getElementById("pomodoroInfoModal");
     const pomodoroInfoClose = document.getElementById("pomodoroInfoClose");
@@ -358,4 +356,5 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
+
 });
