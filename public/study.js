@@ -44,6 +44,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   const isPomodoro = mode === "pomodoro";
   const reviewFlag = (params.get("review") || "").toLowerCase();
 
+  const CORRECT_FEEDBACKS = [
+    "Correct, well done!",
+    "Nice job, you got it right.",
+    "Great work, that's correct.",
+    "Nice, you nailed it.",
+    "That’s right, keep it up."
+  ];
+
+  const INCORRECT_FEEDBACKS = [
+    "Incorrect, better luck next time.",
+    "Not quite, but keep going.",
+    "That's not it, let's try another.",
+    "Close, but not correct this time.",
+    "That's okay, you'll get the next one."
+  ];
+
+  function getRandomFeedback(isCorrect) {
+    const pool = isCorrect ? CORRECT_FEEDBACKS : INCORRECT_FEEDBACKS;
+    if (!pool.length) {
+      // Fallback if something goes wrong
+      return isCorrect ? "Correct." : "Incorrect.";
+    }
+    const idx = Math.floor(Math.random() * pool.length);
+    return pool[idx];
+  }
 
 
   // --- iOS detection
@@ -328,16 +353,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function showResultScreen(isCorrect) {
     hideAllScreens();              // hides all other screens first
-    // do NOT resetResultUI() here (we’re about to set it)
+
+    // Pick a random feedback phrase for this result
+    const phrase = getRandomFeedback(isCorrect);
+
     if (resultTitleEl) {
-      resultTitleEl.textContent = isCorrect
-        ? "Correct, well done!"
-        : "Incorrect, better luck next time!";
+      resultTitleEl.textContent = phrase;
       resultTitleEl.classList.toggle("result-good", isCorrect);
       resultTitleEl.classList.toggle("result-bad", !isCorrect);
     }
+
     screenResult?.classList.remove("hidden");
+
+    // Return the phrase so the caller can speak the same thing
+    return phrase;
   }
+
 
 
   async function showResultAndAdvance(isCorrect) {
@@ -353,9 +384,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Speak the result (blocking), then move on
       try {
-        const phrase = isCorrect
-          ? "Correct, well done!"
-          : "Incorrect, better luck next time!";
+        const phrase = showResultScreen(isCorrect);
         await speakTextAndWait(
           phrase,
           { lang: "en-US", rate: 0.95, pitch: 1.0 },
